@@ -70,6 +70,17 @@ public class ChessBoard {
                         board[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
                     }
                 }
+                if(broyals){
+                    if(rook){
+                        board[i][j] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
+                    }
+                    if(knight){
+                        board[i][j] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
+                    }
+                    if(bishop){
+                        board[i][j] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
+                    }
+                }
 
                 //pawns
                 boolean wpaw = i == 1;
