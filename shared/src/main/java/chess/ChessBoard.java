@@ -18,8 +18,8 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        int row = position.getRow();
-        int col = position.getColumn();
+        int row = position.getRow() - 1;
+        int col = position.getColumn() - 1;
         board[row][col] = piece;
     }
 
@@ -31,8 +31,8 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        int row = position.getRow();
-        int col = position.getColumn();
+        int row = position.getRow() - 1;
+        int col = position.getColumn() - 1;
         boolean b = board[row][col] == null;
         if(b){
             return null;
@@ -50,5 +50,20 @@ public class ChessBoard {
     public void resetBoard() {
         board = new ChessPiece[8][8];
         board[0][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
+        for(int i = 0; i < 8; i ++){
+            for(int j = 0; j < 8; j++){
+                //pawns
+                boolean wpaw = i == 1;
+                boolean bpaw = i == 6;
+                if(wpaw){
+                    board[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
+                }
+                if (bpaw){
+                    board[i][j] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+                }
+
+        }
+
+
     }
 }
