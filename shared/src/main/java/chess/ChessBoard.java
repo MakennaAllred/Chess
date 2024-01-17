@@ -52,6 +52,25 @@ public class ChessBoard {
         board[0][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
         for(int i = 0; i < 8; i ++){
             for(int j = 0; j < 8; j++){
+                //royals
+                boolean wroyals = i == 0;
+                boolean broyals = i == 7;
+                boolean rook = j == 0 | j == 7;
+                boolean knight = j == 1 | j == 6;
+                boolean bishop = j == 2 | j == 5;
+
+                if(wroyals){
+                    if(rook){
+                        board[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
+                    }
+                    if(knight){
+                        board[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
+                    }
+                    if(bishop){
+                        board[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
+                    }
+                }
+
                 //pawns
                 boolean wpaw = i == 1;
                 boolean bpaw = i == 6;
@@ -61,6 +80,7 @@ public class ChessBoard {
                 if (bpaw){
                     board[i][j] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
                 }
+
 
         }
 
