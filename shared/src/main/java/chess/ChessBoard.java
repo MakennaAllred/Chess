@@ -49,52 +49,66 @@ public class ChessBoard {
      */
     public void resetBoard() {
         board = new ChessPiece[8][8];
-        board[0][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
         for(int i = 0; i < 8; i ++){
-            for(int j = 0; j < 8; j++){
+            for(int j = 0; j < 8; j++) {
                 //royals
                 boolean wroyals = i == 0;
                 boolean broyals = i == 7;
                 boolean rook = j == 0 | j == 7;
                 boolean knight = j == 1 | j == 6;
                 boolean bishop = j == 2 | j == 5;
+                boolean queen = j == 3;
+                boolean king = j == 4;
 
-                if(wroyals){
-                    if(rook){
+                if (wroyals) {
+                    if (rook) {
                         board[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
                     }
-                    if(knight){
+                    if (knight) {
                         board[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
                     }
-                    if(bishop){
+                    if (bishop) {
                         board[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
                     }
+                    if (queen) {
+                        board[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
+                    }
+                    if (king) {
+                        board[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
+                    }
                 }
-                if(broyals){
-                    if(rook){
+                if (broyals) {
+                    if (rook) {
                         board[i][j] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
                     }
-                    if(knight){
+                    if (knight) {
                         board[i][j] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
                     }
-                    if(bishop){
+                    if (bishop) {
                         board[i][j] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
+                    }
+                    if (queen) {
+                        board[i][j] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
+                    }
+                    if (king) {
+                        board[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
                     }
                 }
 
                 //pawns
                 boolean wpaw = i == 1;
                 boolean bpaw = i == 6;
-                if(wpaw){
+                if (wpaw) {
                     board[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
                 }
-                if (bpaw){
+                if (bpaw) {
                     board[i][j] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
                 }
-
+            }
 
         }
 
-
+//iterate through pawns and then hard code special characters
+//create to String to debug
     }
 }
