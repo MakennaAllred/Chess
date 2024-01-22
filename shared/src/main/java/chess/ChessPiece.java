@@ -63,7 +63,45 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+
+
+    public Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition, ChessPiece current) {
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+        ChessGame.TeamColor origColor = current.getTeamColor();
+        // up, check null first
+        if (row + 1 < 8) {
+            ChessPiece pos = board.getPiece(new ChessPosition(row + 1, col));
+            // if null break
+            ChessGame.TeamColor posColor = pos.getTeamColor();
+            if (origColor != posColor) {
+                new ChessMove(myPosition, new ChessPosition(row + 1, col), null);
+                // append to collection of possible moves
+            }
+        }
+        // down
+        if (row - 1 > 0) {
+            ChessPiece pos = board.getPiece(new ChessPosition(row - 1, col));
+            // if null break
+            ChessGame.TeamColor posColor = pos.getTeamColor();
+            if (origColor != posColor) {
+                new ChessMove(myPosition, new ChessPosition(row - 1, col), null);
+                // append to collection of possible moves
+            }
+        }
+        return null;
+    }
+//if it's going in the return collection it needs to be 1-based not 0-based
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition){
+        ChessPiece cur = board.getPiece(myPosition);
+        return null;
     }
 }
+
+/**
+ * find piece at passed in position
+ * look at possible moves for each piece
+ * check if new location is occupied and by what color
+ * check if each possible move is in bounds
+ * add possible moves to an array for each piece and return it
+ */
