@@ -145,11 +145,58 @@ public class ChessPiece {
         return total;
     }
 
-//if it's going in the return collection it needs to be 1-based not 0-based
+    public Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition, ChessPiece current){
+         //can only move up or down or side to side
+        Collection<ChessMove> total = new ArrayList<>();
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+        ChessGame.TeamColor origColor = current.getTeamColor();
+        // up
+        if (row != 7) {
+            for (int i = 0; i < 8; i++) {
+                if (row + i < 8) {
+                    Collection<ChessMove> up = notNull(board, myPosition, origColor, new ChessPosition(row + i, col));
+                    total.addAll(up);
+                }
+            }
+        }
+        //down
+        if (row != 0) {
+            for (int i = 7; i > 0; i--) {
+                if (row - i > 0 && row - i < 8) {
+                    Collection<ChessMove> down = notNull(board, myPosition, origColor, new ChessPosition(row - i, col));
+                    total.addAll(down);
+                }
+            }
+        }
+        //left
+        if(col != 0){
+            for (int i = 7; i > 0; i--) {
+                if (col - i > 0 && col - i < 8) {
+                    Collection<ChessMove> left = notNull(board, myPosition, origColor, new ChessPosition(row, col-i));
+                    total.addAll(left);
+                }
+            }
+        }
+        //right
+        if(col != 7){
+            for (int i = 0; i < 8; i++) {
+                if (col + i > 0 && col + i < 8) {
+                    Collection<ChessMove> right = notNull(board, myPosition, origColor, new ChessPosition(row, col+i));
+                    total.addAll(right);
+                }
+            }
+        }
+        return total;
+    }
+
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition){
         ChessPiece cur = board.getPiece(myPosition);
         if (cur.type == PieceType.KING){
             return kingMoves(board,myPosition,cur);
+        }
+        if (cur.type == PieceType.ROOK){
+            return rookMoves(board,myPosition,cur);
         }
 
        return null;
