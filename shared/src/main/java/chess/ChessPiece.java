@@ -73,7 +73,22 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
 
-    public Collection<ChessMove> notNull(ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor, ChessPosition posPosition){
+    boolean rookMoveCheck(Collection<ChessMove> total, ChessPosition myPosition, ChessGame.TeamColor origColor, ChessBoard board, ChessPosition posPosition) {
+        int origSize = total.size();
+        ChessPiece pos = board.getPiece(posPosition);
+        if (pos == null) {
+            total.add(new ChessMove(myPosition, posPosition, null));
+        } else {
+            ChessGame.TeamColor posColor = pos.getTeamColor();
+            if (origColor != posColor) {
+                total.add(new ChessMove(myPosition, posPosition, null));
+            }
+            return origSize != total.size();
+        }
+        return false;
+    }
+
+    public Collection<ChessMove> nullCheck(ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor, ChessPosition posPosition){
         Collection<ChessMove> moves = new ArrayList<>();
         ChessPiece pos = board.getPiece(posPosition);
         if(pos == null){
@@ -95,49 +110,49 @@ public class ChessPiece {
         ChessGame.TeamColor origColor = current.getTeamColor();
         // up, check null first
         if (row + 1 < 8) {
-            Collection<ChessMove> up = notNull(board, myPosition, origColor, new ChessPosition(row + 1, col));
+            Collection<ChessMove> up = nullCheck(board, myPosition, origColor, new ChessPosition(row + 1, col));
             total.addAll(up);
         }
         // down
         if (row - 1 > 0 && row - 1 < 8) {
-            Collection<ChessMove> down = notNull(board, myPosition, origColor, new ChessPosition(row - 1, col));
+            Collection<ChessMove> down = nullCheck(board, myPosition, origColor, new ChessPosition(row - 1, col));
             total.addAll(down);
         }
         // right diagonal
         if (row + 1 < 8) {
             if (col + 1 < 8) {
-                Collection<ChessMove> urDiag = notNull(board, myPosition, origColor, new ChessPosition(row + 1, col +1));
+                Collection<ChessMove> urDiag = nullCheck(board, myPosition, origColor, new ChessPosition(row + 1, col +1));
                 total.addAll(urDiag);
             }
         }
         //upper left diagonal
         if (row + 1 < 8){
             if (col - 1 > 0 && col - 1 < 8){
-                Collection<ChessMove> ulDiag = notNull(board, myPosition, origColor, new ChessPosition(row + 1, col - 1));
+                Collection<ChessMove> ulDiag = nullCheck(board, myPosition, origColor, new ChessPosition(row + 1, col - 1));
                 total.addAll(ulDiag);
             }
         }
         // left
         if (col -1 > 0 && col +1 < 8){
-            Collection<ChessMove> left = notNull(board, myPosition, origColor, new ChessPosition(row, col - 1));
+            Collection<ChessMove> left = nullCheck(board, myPosition, origColor, new ChessPosition(row, col - 1));
             total.addAll(left);
         }
         //right
         if(col + 1 < 8 ){
-            Collection<ChessMove> right = notNull(board, myPosition, origColor, new ChessPosition(row, col + 1));
+            Collection<ChessMove> right = nullCheck(board, myPosition, origColor, new ChessPosition(row, col + 1));
             total.addAll(right);
         }
         //bt left
         if (row - 1 > 0 && row - 1 < 8){
             if(col - 1 > 0 && col - 1 < 8){
-                Collection<ChessMove> btleft = notNull(board, myPosition, origColor, new ChessPosition(row - 1, col - 1));
+                Collection<ChessMove> btleft = nullCheck(board, myPosition, origColor, new ChessPosition(row - 1, col - 1));
                 total.addAll(btleft);
             }
         }
         //bt right
         if (row - 1 > 0 && row -1 < 8){
             if(col + 1 > 0 && col + 1 < 8){
-                Collection<ChessMove> btright = notNull(board, myPosition, origColor, new ChessPosition(row - 1, col + 1));
+                Collection<ChessMove> btright = nullCheck(board, myPosition, origColor, new ChessPosition(row - 1, col + 1));
                 total.addAll(btright);
             }
         }
@@ -152,41 +167,40 @@ public class ChessPiece {
         int col = myPosition.getColumn();
         ChessGame.TeamColor origColor = current.getTeamColor();
         // up
-        if (row != 7) {
-            for (int i = 0; i < 8; i++) {
-                if (row + i < 8) {
-                    Collection<ChessMove> up = notNull(board, myPosition, origColor, new ChessPosition(row + i, col));
-                    total.addAll(up);
+        boolean up = true;
+        while (up) {
+            for (int i = 0; i < 7; i++) {
+                if(row + i < 8) {
+                    up = rookMoveCheck(total, myPosition, origColor, board, new ChessPosition(row + i, col));
+                }
                 }
             }
-        }
         //down
-        if (row != 0) {
+        boolean down = true;
+        while(down) {
             for (int i = 7; i > 0; i--) {
-                if (row - i > 0 && row - i < 8) {
-                    Collection<ChessMove> down = notNull(board, myPosition, origColor, new ChessPosition(row - i, col));
-                    total.addAll(down);
+                if (row - i > 0) {
+                    down = rookMoveCheck(total, myPosition, origColor, board, new ChessPosition(row - i, col));
                 }
             }
         }
         //left
-        if(col != 0){
+        boolean left = true;
+        while (left) {
             for (int i = 7; i > 0; i--) {
-                if (col - i > 0 && col - i < 8) {
-                    Collection<ChessMove> left = notNull(board, myPosition, origColor, new ChessPosition(row, col-i));
-                    total.addAll(left);
+                if (row - i > 0) {
+                    left = rookMoveCheck(total, myPosition, origColor, board, new ChessPosition(row, col - i));
                 }
             }
         }
         //right
-        if(col != 7){
-            for (int i = 0; i < 8; i++) {
-                if (col + i > 0 && col + i < 8) {
-                    Collection<ChessMove> right = notNull(board, myPosition, origColor, new ChessPosition(row, col+i));
-                    total.addAll(right);
+        boolean right = true;
+        while(right){
+            for (int i = 0; i < 7; i++) {
+                    right = rookMoveCheck(total,myPosition, origColor, board, new ChessPosition(row, col+i));
                 }
             }
-        }
+
         return total;
     }
 
@@ -210,3 +224,5 @@ public class ChessPiece {
  * check if each possible move is in bounds
  * add possible moves to an array for each piece and return it
  */
+
+
