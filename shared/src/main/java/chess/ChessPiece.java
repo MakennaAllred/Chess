@@ -64,6 +64,19 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
 
+    public Collection<ChessMove> notNull(ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor, ChessPosition posPosition){
+        ChessPiece pos = board.getPiece(posPosition);
+        if(pos == null){
+            new ChessMove(myPosition, posPosition, null);
+        }
+        else {
+            ChessGame.TeamColor posColor = pos.getTeamColor();
+            if (origColor != posColor) {
+                new ChessMove(myPosition, posPosition, null);
+                // append to collection of possible moves
+            }
+        }
+    }
 
     public Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition, ChessPiece current) {
         int row = myPosition.getRow();
@@ -71,24 +84,33 @@ public class ChessPiece {
         ChessGame.TeamColor origColor = current.getTeamColor();
         // up, check null first
         if (row + 1 < 8) {
-            ChessPiece pos = board.getPiece(new ChessPosition(row + 1, col));
-            // if null break
-            ChessGame.TeamColor posColor = pos.getTeamColor();
-            if (origColor != posColor) {
-                new ChessMove(myPosition, new ChessPosition(row + 1, col), null);
-                // append to collection of possible moves
-            }
+            Collection<ChessMove> up = notNull(board, myPosition, origColor, new ChessPosition(row + 1, col));
         }
         // down
-        if (row - 1 > 0) {
-            ChessPiece pos = board.getPiece(new ChessPosition(row - 1, col));
-            // if null break
-            ChessGame.TeamColor posColor = pos.getTeamColor();
-            if (origColor != posColor) {
-                new ChessMove(myPosition, new ChessPosition(row - 1, col), null);
-                // append to collection of possible moves
+        if (row - 1 > 0 && row - 1 < 8) {
+            Collection<ChessMove> down = notNull(board, myPosition, origColor, new ChessPosition(row - 1, col));
+        }
+        // right diagonal
+        if (row + 1 < 8) {
+            if (col + 1 < 8) {
+                Collection<ChessMove> urDiag = notNull(board, myPosition, origColor, new ChessPosition(row + 1, col +1));
             }
         }
+        //upper left diagonal
+        if (row + 1 < 8){
+            if (col - 1 > 0 && col - 1 < 8){
+                Collection<ChessMove> ulDiag = notNull(board, myPosition, origColor, new ChessPosition(row + 1, col - 1));
+            }
+        }
+        // left
+        if (col -1 > 0 && col +1 < 8){
+            Collection<ChessMove> left = notNull(board, myPosition, origColor, new ChessPosition(row, col - 1));
+        }
+        //right
+        if(col + 1 < 8 ){
+            Collection<ChessMove> right = notNull(board, myPosition, origColor, new ChessPosition(row, col + 1));
+        }
+
         return null;
     }
 //if it's going in the return collection it needs to be 1-based not 0-based
