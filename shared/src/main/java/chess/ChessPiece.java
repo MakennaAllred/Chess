@@ -550,14 +550,15 @@ public class ChessPiece {
         //first move
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
+        int forwardRow = row;
         if (row == 1) {
-            row++;
-            ChessPosition posPosition = new ChessPosition(row, col);
+            forwardRow++;
+            ChessPosition posPosition = new ChessPosition(forwardRow, col);
             ChessPiece posPiece = board.getPiece(posPosition);
             if (posPiece == null) {
                 total.add(new ChessMove(myPosition, posPosition, null));
-                row++;
-                posPosition = new ChessPosition(row, col);
+                forwardRow++;
+                posPosition = new ChessPosition(forwardRow, col);
                 posPiece = board.getPiece(posPosition);
                 if(posPiece == null){
                     total.add(new ChessMove(myPosition, posPosition, null));
