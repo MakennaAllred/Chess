@@ -573,10 +573,10 @@ public class ChessPiece {
 
     public Collection<ChessMove> diagonalCheckB(Collection<ChessMove> total, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor, int forwardRow, int forwardCol ){
         if(forwardRow <= 8 && forwardCol <= 8) {
-            if (forwardRow >= 0 && forwardCol >= 0) {
+            if (forwardRow >= 1 && forwardCol >= 1) {
                 ChessPosition posPosition = new ChessPosition(forwardRow, forwardCol);
                 ChessPiece posPiece = board.getPiece(posPosition);
-                if (forwardRow != 8) {
+                if (forwardRow != 1) {
                     if (posPiece != null) {
                         ChessGame.TeamColor posColor = posPiece.getTeamColor();
                         if (origColor != posColor) {
@@ -591,7 +591,6 @@ public class ChessPiece {
                             total.add(new ChessMove(myPosition, posPosition, PieceType.KNIGHT));
                             total.add(new ChessMove(myPosition, posPosition, PieceType.BISHOP));
                             total.add(new ChessMove(myPosition, posPosition, PieceType.QUEEN));
-
                         }
                     }
                 }
@@ -696,6 +695,16 @@ public class ChessPiece {
                     total.add(new ChessMove(myPosition, posPosition, PieceType.ROOK));
                     total.add(new ChessMove(myPosition, posPosition, PieceType.QUEEN));
                 }
+                forwardRow = row;
+                //diagonal
+                forwardRow--;
+                forwardCol--;
+                Collection<ChessMove> rightDiag = diagonalCheckB(total, board, myPosition, origColor, forwardRow, forwardCol);
+                total.addAll(rightDiag);
+                forwardCol = col;
+                forwardCol++;
+                Collection<ChessMove> leftDiag = diagonalCheckB(total, board, myPosition, origColor, forwardRow, forwardCol);
+                total.addAll(leftDiag);
 
 
             } else {
