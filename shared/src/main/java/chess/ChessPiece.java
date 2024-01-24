@@ -525,7 +525,6 @@ public class ChessPiece {
         lrow = row;
         lcol = col;
         //-2,-1
-
         lrow = lrow - 2;
         lcol--;
         posPosition = new ChessPosition(lrow, lcol);
@@ -557,11 +556,10 @@ public class ChessPiece {
 //            ChessPiece posPiece = board.getPiece(posPosition);
 //            if (posPiece == null) {
 //                total.add(new ChessMove(myPosition, posPosition, null));
-//            } else {
-//                ChessGame.TeamColor posColor = posPiece.getTeamColor();
-//                if (origColor != posColor) {
-//                    total.add(new ChessMove(myPosition, posPosition, null));
-//                }
+//            } else{
+//    do nothing}
+            //if forward is not null then you can't do anything
+    //can only capture sideways
 //
 //        }
 //        //diagonal capture
