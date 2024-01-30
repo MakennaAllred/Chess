@@ -12,8 +12,8 @@ import java.util.Objects;
  */
 public class ChessPiece {
     private ChessGame.TeamColor pieceColor;
-    private PieceType type;
-    public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
+    private ChessPiece.PieceType type;
+    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
     }
@@ -55,14 +55,24 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        return this.pieceColor;
+        return pieceColor;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        return this.type;
+        return type;
+    }
+
+
+    public boolean inboundsCheck(int row, int col){
+        if(row >= 1 && row <= 8){
+            if(col >=1 && col <= 8){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -72,402 +82,231 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
-
-    public boolean inboundsCheck(int row, int col){
-        if(row >= 1 && row <= 8){
-            if (col>= 1 && col <= 8){
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-    public Collection<ChessMove> kingmoveCheck(ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor, ChessPosition posPosition){
-        Collection<ChessMove> moves = new ArrayList<>();
-        ChessPiece pos = board.getPiece(posPosition);
-        if(pos == null){
-             moves.add(new ChessMove(myPosition, posPosition, null));
-        }
-        else {
-            ChessGame.TeamColor posColor = pos.getTeamColor();
-            if (origColor != posColor) {
-               moves.add(new ChessMove(myPosition, posPosition, null));
-            }
-        }
-        return moves;
-    }
-
-    public Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition, ChessPiece current, int row, int col, ChessGame.TeamColor origColor) {
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> total = new ArrayList<>();
-//        int row = myPosition.getRow();
-//        int col = myPosition.getColumn();
-//        ChessGame.TeamColor origColor = current.getTeamColor();
-        // up, check null first
-//        if (row + 1 < 8) {
-        boolean check = inboundsCheck(row+1, col);
-        if(check){
-            Collection<ChessMove> up = kingmoveCheck(board, myPosition, origColor, new ChessPosition(row + 1, col));
-            total.addAll(up);
+        ChessPiece original = board.getPiece(myPosition);
+        ChessGame.TeamColor origColor = original.getTeamColor();
+        PieceType cur = original.type;
+        if(cur == PieceType.KING){
+            kingMoves(total,board,myPosition,origColor);
         }
-        // down
-        check = inboundsCheck(row-1,col);
-        if (check) {
-            Collection<ChessMove> down = kingmoveCheck(board, myPosition, origColor, new ChessPosition(row - 1, col));
-            total.addAll(down);
+        if(cur == PieceType.ROOK){
+            rookMoves(total,board,myPosition,origColor);
         }
-        // right diagonal
-        check = inboundsCheck(row+1,col+1);
-        if (check) {
-//            if (col + 1 < 8) {
-                Collection<ChessMove> urDiag = kingmoveCheck(board, myPosition, origColor, new ChessPosition(row + 1, col +1));
-                total.addAll(urDiag);
-//            }
+        if(cur == PieceType.BISHOP){
+            bishopMoves(total,board,myPosition,origColor);
         }
-        //upper left diagonal
-        check = inboundsCheck(row+1,col-1);
-        if (check){
-//            if (col - 1 > 0 && col - 1 < 8){
-                Collection<ChessMove> ulDiag = kingmoveCheck(board, myPosition, origColor, new ChessPosition(row + 1, col - 1));
-                total.addAll(ulDiag);
-//            }
+        if(cur == PieceType.QUEEN){
+            queenMoves(total,board,myPosition,origColor);
         }
-        // left
-        check = inboundsCheck(row, col-1);
-        if (check){
-            Collection<ChessMove> left = kingmoveCheck(board, myPosition, origColor, new ChessPosition(row, col - 1));
-            total.addAll(left);
+        if(cur == PieceType.KNIGHT){
+            knightMoves(total,board,myPosition,origColor);
         }
-        //right
-        check = inboundsCheck(row, col+1);
-        if(check){
-            Collection<ChessMove> right = kingmoveCheck(board, myPosition, origColor, new ChessPosition(row, col + 1));
-            total.addAll(right);
+        if(cur == PieceType.PAWN){
+            if(origColor == ChessGame.TeamColor.WHITE){
+                pawnMoves(total,board,myPosition,origColor,1,2,8);
+            }
+            else{
+                pawnMoves(total,board,myPosition,origColor,-1,7,1);
+            }
         }
-        //bt left
-        check = inboundsCheck(row-1,col-1);
-        if (check){
-//            if(col - 1 > 0 && col - 1 < 8){
-                Collection<ChessMove> btleft = kingmoveCheck(board, myPosition, origColor, new ChessPosition(row - 1, col - 1));
-                total.addAll(btleft);
-//            }
-        }
-        //bt right
-        check = inboundsCheck(row-1,col+1);
-        if (check){
-//            if(col + 1 > 0 && col + 1 < 8){
-                Collection<ChessMove> btright = kingmoveCheck(board, myPosition, origColor, new ChessPosition(row - 1, col + 1));
-                total.addAll(btright);
-//            }
-        }
-
         return total;
     }
 
-    public void rmoveCheck (Collection<ChessMove> total, ChessBoard board, ChessPosition myPosition, int row, int col, ChessGame.TeamColor origColor, int manipRow, int manipCol) {
-        int newRow = row;
-        int newCol = col;
-        while (true) {
-            newRow = newRow + manipRow;
-            newCol = newCol + manipCol;
-            ChessPosition posPosition = new ChessPosition(newRow, newCol);
-            boolean check = inboundsCheck(newRow, newCol);
-            if (!check) {
+    public void kingMoves(Collection<ChessMove> total, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor) {
+        //up
+        kingMovesCheck(total,board,myPosition,origColor,1,0);
+        //down
+        kingMovesCheck(total,board,myPosition,origColor,-1,0);
+        // right
+        kingMovesCheck(total,board,myPosition,origColor,0,1);
+        //left
+        kingMovesCheck(total,board,myPosition,origColor,0,-1);
+        //uprightdiagonal
+        kingMovesCheck(total,board,myPosition,origColor,1,1);
+        //downrightdiagonal
+        kingMovesCheck(total,board,myPosition,origColor,-1,1);
+        //upleftdiagonal
+        kingMovesCheck(total,board,myPosition,origColor,1,-1);
+        //downleftdiagonal
+        kingMovesCheck(total,board,myPosition,origColor,-1,-1);
+    }
+
+    public void kingMovesCheck(Collection<ChessMove> total,ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor, int rowManip, int colManip){
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+        row = row + rowManip;
+        col = col + colManip;
+        boolean check = inboundsCheck(row,col);
+        if(check){
+            ChessPosition posPosition = new ChessPosition(row,col);
+            ChessPiece posPiece = board.getPiece(posPosition);
+            if(posPiece == null){
+                total.add(new ChessMove(myPosition,posPosition,null));
+            }
+            else{
+                ChessGame.TeamColor posColor = posPiece.getTeamColor();
+                if(origColor != posColor){
+                    total.add(new ChessMove(myPosition,posPosition,null));
+                }
+            }
+        }
+    }
+    public void rookMoves(Collection<ChessMove> total, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor) {
+        //up
+        rookMovesCheck(total,board,myPosition,origColor,1,0);
+        //down
+        rookMovesCheck(total,board,myPosition,origColor,-1,0);
+        // right
+        rookMovesCheck(total,board,myPosition,origColor,0,1);
+        //left
+        rookMovesCheck(total,board,myPosition,origColor,0,-1);
+    }
+    public void rookMovesCheck(Collection<ChessMove> total,ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor, int rowManip, int colManip){
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+        while(true){
+            row = row + rowManip;
+            col = col + colManip;
+            boolean check = inboundsCheck(row,col);
+            if(!check){
                 break;
             }
+            ChessPosition posPosition = new ChessPosition(row,col);
             ChessPiece posPiece = board.getPiece(posPosition);
-            if (posPiece == null) {
-                total.add(new ChessMove(myPosition, posPosition, null));
-            } else {
+            if(posPiece == null){
+                total.add(new ChessMove(myPosition,posPosition,null));
+            }
+            else{
                 ChessGame.TeamColor posColor = posPiece.getTeamColor();
-                if (origColor != posColor) {
-                    total.add(new ChessMove(myPosition, posPosition, null));
-                    break;
-                } else {
+                if(origColor != posColor){
+                    total.add(new ChessMove(myPosition,posPosition,null));
                     break;
                 }
-            }
-
-        }
-    }
-
-    public Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition, ChessPiece current) {
-        Collection<ChessMove> total = new ArrayList<>();
-        int row = myPosition.getRow();
-        int col = myPosition.getColumn();
-        ChessGame.TeamColor origColor = current.getTeamColor();
-        // up
-        int up = 1;
-        int down = -1;
-        rmoveCheck(total,board,myPosition,row,col,origColor,up,0);
-        //down
-        rmoveCheck(total,board,myPosition,row,col,origColor,down,0);
-        //left
-        rmoveCheck(total,board,myPosition,row,col,origColor,0,down);
-        //right
-        rmoveCheck(total,board,myPosition,row,col,origColor,0,up);
-        return total;
-    }
-
-    public Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition, ChessPiece current) {
-        Collection<ChessMove> total = new ArrayList<>();
-        int row = myPosition.getRow();
-        int col = myPosition.getColumn();
-        ChessGame.TeamColor origColor = current.getTeamColor();
-        //right diagonal
-        int up = 1;
-        int down = -1;
-        rmoveCheck(total,board,myPosition, row,col,origColor,up,up);
-        //left down diagonal
-        rmoveCheck(total,board,myPosition,row,col,origColor,down,down);
-        //upper left diagonal
-        rmoveCheck(total,board,myPosition,row,col,origColor,up,down);
-        //lower right diagonal
-        rmoveCheck(total,board,myPosition,row,col,origColor,down,up);
-        return total;
-    }
-
-    public Collection<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition, ChessPiece current){
-        Collection<ChessMove> total = new ArrayList<>();
-        int row = myPosition.getRow();
-        int col = myPosition.getColumn();
-        ChessGame.TeamColor origColor = current.getTeamColor();
-        total.addAll(bishopMoves(board,myPosition,current));
-        total.addAll(rookMoves(board,myPosition,current));
-        return total;
-    }
-
-    public void kmovesCheck(Collection<ChessMove> total, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor, int posRow, int posCol){
-        ChessPosition posPosition = new ChessPosition(posRow, posCol);
-        boolean check = inboundsCheck(posRow,posCol);
-        if (check) {
-            ChessPiece posPiece = board.getPiece(posPosition);
-            if (posPiece == null) {
-                total.add(new ChessMove(myPosition, posPosition, null));
-            } else {
-                ChessGame.TeamColor posColor = posPiece.getTeamColor();
-                if (origColor != posColor) {
-                    total.add(new ChessMove(myPosition, posPosition, null));
+                else{
+                    break;
                 }
             }
         }
     }
-
-    public Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition, ChessPiece current){
-        Collection<ChessMove> total = new ArrayList<>();
-        int row = myPosition.getRow();
-        int col = myPosition.getColumn();
-        ChessGame.TeamColor origColor = current.getTeamColor();
-        /*
-        up right : row +2 col +1 or row +1 col +2
-        up left : row + 2 col -1 or row +1 col -2
-        down right: row -1 col +2 or row -2 col +1
-        down left: row -1 col -2 or row -2 col -1
-         */
-        int rrow = row;
-        int rcol = col;
-        //+1,+2
-        rrow++;
-        rcol = rcol + 2;
-        kmovesCheck(total,board,myPosition,origColor,rrow,rcol);
-
-        rrow = row;
-        rcol = col;
-        //+1,-2
-        rrow++;
-        rcol = rcol - 2;
-        kmovesCheck(total,board,myPosition,origColor,rrow,rcol);
-
-        rrow = row;
-        rcol = col;
-        //+2, +1
-        rrow = rrow + 2;
-        rcol++;
-        kmovesCheck(total,board,myPosition,origColor,rrow,rcol);
-
-        rrow = row;
-        rcol = col;
-        // +2, -1
-        rrow = rrow + 2;
-        rcol--;
-        kmovesCheck(total,board,myPosition,origColor,rrow,rcol);
-
-
-        int lrow = row;
-        int lcol = col;
-        //-1,+2
-        lrow--;
-        lcol = lcol + 2;
-        kmovesCheck(total,board,myPosition,origColor,lrow,lcol);
-
-
-        lrow = row;
-        lcol = col;
-        // -1,-2
-        lrow--;
-        lcol = lcol - 2;
-        kmovesCheck(total,board,myPosition,origColor,lrow,lcol);
-
-
-        lrow = row;
-        lcol = col;
-        // -2, +1
-        lrow = lrow - 2;
-        lcol++;
-        kmovesCheck(total,board,myPosition,origColor,lrow,lcol);
-
-
-        lrow = row;
-        lcol = col;
-        //-2,-1
-        lrow = lrow - 2;
-        lcol--;
-        kmovesCheck(total,board,myPosition,origColor,lrow,lcol);
-
-        return total;
+    public void bishopMoves(Collection<ChessMove> total, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor) {
+        //upright
+        rookMovesCheck(total,board,myPosition,origColor,1,1);
+        //downright
+        rookMovesCheck(total,board,myPosition,origColor,-1,1);
+        // downleft
+        rookMovesCheck(total,board,myPosition,origColor,-1,-1);
+        //upleft
+        rookMovesCheck(total,board,myPosition,origColor,1,-1);
+    }
+    public void queenMoves(Collection<ChessMove> total, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor) {
+        rookMoves(total,board,myPosition,origColor);
+        bishopMoves(total,board,myPosition,origColor);
     }
 
-    public Collection<ChessMove> diagonalCheck(Collection<ChessMove> total, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor, int forwardRow, int forwardCol, int endRow ){
-        boolean check = inboundsCheck(forwardRow,forwardCol);
-        if(check) {
-            ChessPosition posPosition = new ChessPosition(forwardRow, forwardCol);
-            ChessPiece posPiece = board.getPiece(posPosition);
-            if (forwardRow == endRow) {
-                if (posPiece != null) {
-                    ChessGame.TeamColor posColor = posPiece.getTeamColor();
-                    if (origColor != posColor) {
-                        total.add(new ChessMove(myPosition, posPosition, PieceType.ROOK));
-                        total.add(new ChessMove(myPosition, posPosition, PieceType.KNIGHT));
-                        total.add(new ChessMove(myPosition, posPosition, PieceType.BISHOP));
-                        total.add(new ChessMove(myPosition, posPosition, PieceType.QUEEN));
-
-                    }
-                }
-            } else {
-                if (posPiece != null) {
-                    ChessGame.TeamColor posColor = posPiece.getTeamColor();
-                    if (origColor != posColor) {
-                            total.add(new ChessMove(myPosition, posPosition, null));
-                        }
-                    }
-                }
-            }
-        return total;
+    public void knightMoves(Collection<ChessMove> total, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor) {
+        //upright: (+1,+2) (+2,+1)
+        kingMovesCheck(total,board,myPosition,origColor,1,2);
+        kingMovesCheck(total,board,myPosition,origColor,2,1);
+        //downright: (-1,+2) (-2,+1)
+        kingMovesCheck(total,board,myPosition,origColor,-1,2);
+        kingMovesCheck(total,board,myPosition,origColor,-2,1);
+        //upleft: (+1,-2) (+2,-1)
+        kingMovesCheck(total,board,myPosition,origColor,1,-2);
+        kingMovesCheck(total,board,myPosition,origColor,2,-1);
+        //downleft:(-1,-2) (-2,-1)
+        kingMovesCheck(total,board,myPosition,origColor,-1,-2);
+        kingMovesCheck(total,board,myPosition,origColor,-2,-1);
     }
 
-    public void diagonalHelper(Collection<ChessMove>total, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor){
+    public void pawnMoves(Collection<ChessMove> total,ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor, int advance, int homeRow, int endRow){
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
         int forwardRow = row;
-        int forwardCol = col;
-        //diagonal
-        if(origColor == ChessGame.TeamColor.WHITE) {
-            forwardRow++;
-            forwardCol++;
-            Collection<ChessMove> rightDiag = diagonalCheck(total, board, myPosition, origColor, forwardRow, forwardCol,8);
-            total.addAll(rightDiag);
-            forwardCol = col;
-            forwardCol--;
-            Collection<ChessMove> leftDiag = diagonalCheck(total, board, myPosition, origColor, forwardRow, forwardCol,8);
-            total.addAll(leftDiag);
-        }
-        if(origColor == ChessGame.TeamColor.BLACK){
-            forwardRow--;
-            forwardCol--;
-            Collection<ChessMove> rightDiag = diagonalCheck(total, board, myPosition, origColor, forwardRow, forwardCol,1);
-            total.addAll(rightDiag);
-            forwardCol = col;
-            forwardCol++;
-            Collection<ChessMove> leftDiag = diagonalCheck(total, board, myPosition, origColor, forwardRow, forwardCol,1);
-            total.addAll(leftDiag);
-        }
-    }
-    public Collection<ChessMove> pawnMovesCheck(Collection<ChessMove> total, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor, int homeRow, int endRow, int advance){
-        int row = myPosition.getRow();
-        int col = myPosition.getColumn();
-        int forwardRow = row;
-        // move forward
         forwardRow = forwardRow + advance;
         boolean check = inboundsCheck(forwardRow,col);
-        if(check) {
-                if (row == homeRow) {
-                    ChessPosition posPosition = new ChessPosition(forwardRow, col);
-                    ChessPiece posPiece = board.getPiece(posPosition);
-                    if (posPiece == null) {
-                        total.add(new ChessMove(myPosition, posPosition, null));
-                        forwardRow = forwardRow + advance;
-                        posPosition = new ChessPosition(forwardRow, col);
-                        posPiece = board.getPiece(posPosition);
-                        if (posPiece == null) {
-                            total.add(new ChessMove(myPosition, posPosition, null));
-                        }
+        if(check){
+            ChessPosition posPosition = new ChessPosition(forwardRow,col);
+            ChessPiece posPiece = board.getPiece(posPosition);
+            if(posPiece == null){
+                if(row == homeRow) {
+                    total.add(new ChessMove(myPosition, posPosition, null));
+                    forwardRow = forwardRow + advance;
+                    posPosition = new ChessPosition(forwardRow,col);
+                    posPiece = board.getPiece(posPosition);
+                    if(posPiece == null){
+                        total.add(new ChessMove(myPosition,posPosition,null));
                     }
-                } else if (forwardRow == endRow) {
-                    ChessPosition posPosition = new ChessPosition(forwardRow, col);
-                    ChessPiece posPiece = board.getPiece(posPosition);
-                    if (posPiece == null) {
-                        total.add(new ChessMove(myPosition, posPosition, PieceType.BISHOP));
-                        total.add(new ChessMove(myPosition, posPosition, PieceType.KNIGHT));
-                        total.add(new ChessMove(myPosition, posPosition, PieceType.ROOK));
-                        total.add(new ChessMove(myPosition, posPosition, PieceType.QUEEN));
-                    }
-                    diagonalHelper(total,board,myPosition,origColor);
-
-
-                } else {
-                    ChessPosition posPosition = new ChessPosition(forwardRow, col);
-                    ChessPiece posPiece = board.getPiece(posPosition);
-                    if (posPiece == null) {
-                        total.add(new ChessMove(myPosition, posPosition, null));
-                    }
-                    diagonalHelper(total,board,myPosition,origColor);
                 }
+                else if(forwardRow == endRow){
+                    total.add(new ChessMove(myPosition,posPosition,PieceType.ROOK));
+                    total.add(new ChessMove(myPosition,posPosition,PieceType.BISHOP));
+                    total.add(new ChessMove(myPosition,posPosition,PieceType.KNIGHT));
+                    total.add(new ChessMove(myPosition,posPosition,PieceType.QUEEN));
+                    if(origColor == ChessGame.TeamColor.WHITE){
+                        pawnMovesCheck(total,board,myPosition,origColor,1,1,true);
+                        pawnMovesCheck(total,board,myPosition,origColor,1,-1,true);
+                    }
+                    else{
+                        pawnMovesCheck(total,board,myPosition,origColor,-1,-1,true);
+                        pawnMovesCheck(total,board,myPosition,origColor,-1,1,true);
+                    }
+                }
+                else{
+                    total.add(new ChessMove(myPosition,posPosition,null));
+                    if(origColor == ChessGame.TeamColor.WHITE){
+                        pawnMovesCheck(total,board,myPosition,origColor,1,1,false);
+                        pawnMovesCheck(total,board,myPosition,origColor,1,-1,false);
+                    }
+                    else{
+                        pawnMovesCheck(total,board,myPosition,origColor,-1,-1,false);
+                        pawnMovesCheck(total,board,myPosition,origColor,-1,1,false);
+                    }
+                }
+            }
+            else{
+                if(origColor == ChessGame.TeamColor.WHITE){
+                    pawnMovesCheck(total,board,myPosition,origColor,1,1,false);
+                    pawnMovesCheck(total,board,myPosition,origColor,1,-1,false);
+                }
+                else{
+                    pawnMovesCheck(total,board,myPosition,origColor,-1,-1,false);
+                    pawnMovesCheck(total,board,myPosition,origColor,-1,1,false);
+                }
+            }
         }
-        return total;
+
     }
 
-
-    public Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition, ChessPiece current){
-        Collection<ChessMove> total = new ArrayList<>();
+    public void pawnMovesCheck(Collection<ChessMove> total,ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor origColor, int rowManip, int colManip, boolean promorow) {
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
-        ChessGame.TeamColor origColor = current.getTeamColor();
-        if(origColor == ChessGame.TeamColor.WHITE){
-            return pawnMovesCheck(total,board,myPosition,origColor,2,8,1);
-        }
-        else{
-            return pawnMovesCheck(total,board, myPosition,origColor,7,1, -1);
+        row = row + rowManip;
+        col = col + colManip;
+        boolean check = inboundsCheck(row, col);
+        if (check) {
+            ChessPosition posPosition = new ChessPosition(row, col);
+            ChessPiece posPiece = board.getPiece(posPosition);
+            if (posPiece != null) {
+                ChessGame.TeamColor posColor = posPiece.getTeamColor();
+                if (origColor != posColor) {
+                    if (promorow) {
+                        total.add(new ChessMove(myPosition, posPosition, PieceType.ROOK));
+                        total.add(new ChessMove(myPosition, posPosition, PieceType.KNIGHT));
+                        total.add(new ChessMove(myPosition, posPosition, PieceType.QUEEN));
+                        total.add(new ChessMove(myPosition, posPosition, PieceType.BISHOP));
+                    } else {
+                        total.add(new ChessMove(myPosition, posPosition, null));
+                    }
+                }
+            }
         }
     }
 
 
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        ChessPiece cur = board.getPiece(myPosition);
-        int row = myPosition.getRow();
-        int col = myPosition.getColumn();
-        ChessGame.TeamColor origColor = cur.getTeamColor();
-        if (cur.type == PieceType.KING) {
-            return kingMoves(board, myPosition, cur, row, col, origColor);
-        }
-        if (cur.type == PieceType.ROOK) {
-            return rookMoves(board, myPosition, cur);
-        }
-        if (cur.type == PieceType.BISHOP) {
-            return bishopMoves(board, myPosition, cur);
-        }
-        if (cur.type == PieceType.QUEEN){
-            return queenMoves(board, myPosition, cur);
-        }
-        if (cur.type == PieceType.KNIGHT){
-            return knightMoves(board, myPosition,cur);
-        }
-        if (cur.type == PieceType.PAWN){
-            return pawnMoves(board, myPosition,cur);
-        }
-        return null;
-    }
+
+
+
+
+
 }
-
-
-
-
