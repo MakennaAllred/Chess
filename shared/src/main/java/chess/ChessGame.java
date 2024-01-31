@@ -3,6 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -35,6 +36,27 @@ public class ChessGame {
         teamTurn = team;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessGame chessGame = (ChessGame) o;
+        return teamTurn == chessGame.teamTurn && Objects.equals(board, chessGame.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(teamTurn, board);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessGame{" +
+                "teamTurn=" + teamTurn +
+                ", board=" + board +
+                '}';
+    }
+
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
@@ -55,28 +77,31 @@ public class ChessGame {
         ChessPiece current = board.getPiece(startPosition);
         Collection<ChessMove> valid = current.pieceMoves(board,startPosition);
         if(valid == null){
-            return valid;
+            return null;
         }
         else{
             //clone board
-            ChessBoard clone = board;
+            TeamColor teamColor = current.getTeamColor();
+//            ChessBoard clone = board;
             //try each potential move
             for(ChessMove posMove:valid){
-                //look at end position of the chess move
-                //save the piece at that position
-                // call add and get piece from ChessBoard
-                // put piece at start at endposition
-                // put null piece at start position
-                //isinCheck()
-                // if true, not a valid move
+                ChessPosition potentialStart = posMove.getStartPosition();
+                ChessPosition potentialEnd = posMove.getEndPosition();
+                //look at end position of the chess move & save the piece at that position
+                ChessPiece potentialPiece = board.getPiece(potentialEnd);
+                // put og piece at pot end and put null at start
+                board.addPiece(potentialEnd, current);
+                board.addPiece(potentialStart, null);
+                boolean check = isInCheck(teamColor);
                 //if false then it is a valid move so add it
+                if(!check){
+                    moves.add(new ChessMove(potentialStart,potentialEnd,null));
+                }
                 //then reverse the move and put it back
-
+                board.addPiece(potentialEnd,potentialPiece);
+                board.addPiece(startPosition,current);
             }
-
-
         }
-
        return moves;
     }
 
@@ -87,7 +112,14 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        Collection<ChessMove> valids = validMoves(start);
+        if(valids.contains(move)){
+            ChessPiece current = board.getPiece(start);
+            board.addPiece(end, current);
+//            board.addPiece(start,null);
+        }
     }
 
     /**
@@ -133,13 +165,10 @@ public class ChessGame {
                 return false;
             }
         }
-
-
-
-        return true;
+        return false;
     }
 
-    public void findPieces(Collection<ChessPosition> posMoves, TeamColor teamColor){
+    public void findPieces(Collection<ChessPosition> myPieces, TeamColor teamColor){
         for (int i = 1; i <=8; i ++){
             for(int j = 1; j <= 8; j++){
                 ChessPiece currentPiece = board.getPiece(new ChessPosition(i,j));
@@ -147,14 +176,9 @@ public class ChessGame {
                     TeamColor posColor = currentPiece.getTeamColor();
                     if(teamColor == posColor){
                         //call piece moves && add all possible moves to a collection
-                        Collection<ChessMove> posmoves = currentPiece.pieceMoves(board,new ChessPosition(i,j));
-                        for(ChessMove move: posmoves){
-                            Collection<ChessPosition> myPieces =
-                        }
-                        ChessPiece.PieceType posKing = currentPiece.getPieceType();
-                        if(posKing == ChessPiece.PieceType.KING){
-                            ChessPiece myKing = currentPiece;
-                            ChessPosition kingPostion = new ChessPosition(i,j);
+                        Collection<ChessMove> allPosMoves = currentPiece.pieceMoves(board,new ChessPosition(i,j));
+                        for(ChessMove move: allPosMoves){
+                            myPieces.add(move.getStartPosition());
                         }
                     }
                 }
@@ -170,7 +194,40 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         boolean check = isInCheck(teamColor);
-        Collection<ChessMove> valid = validMoves(board, );
+        if(check) {
+            if(gameOver(teamColor)){
+                return true;
+            }
+//            Collection<ChessPosition> myPieces = new ArrayList<>();
+//            findPieces(myPieces, teamColor);
+//            Collection<ChessMove> valid = new ArrayList<>();
+//            for (ChessPosition pos : myPieces) {
+//                valid.addAll(validMoves(pos));
+//            }
+//            if (valid.isEmpty()) {
+//                return true;
+//            }
+//
+//            return false;
+        }
+        return false;
+
+    }
+
+
+    public boolean gameOver(TeamColor teamColor){
+        Collection<ChessPosition> myPieces = new ArrayList<>();
+        findPieces(myPieces, teamColor);
+        Collection<ChessMove> valid = new ArrayList<>();
+        for (ChessPosition pos : myPieces) {
+            valid.addAll(validMoves(pos));
+        }
+        if (valid.isEmpty()) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     /**
@@ -182,9 +239,14 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         // for each piece on the board that's your color
-        // valid moves
-        // if null, return true;
-        return true;
+        if(gameOver(teamColor)) {
+            // valid moves
+            // if null, return true;
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     /**
