@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -97,10 +98,68 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         //loop through all the other player's moves
-        //call piece moves
-        //add all possible moves to a collection
+        Collection<ChessPosition> checkMoves = new ArrayList<>();
+        ChessPiece myKing = null;
+        ChessPosition kingPostion = null;
+        for (int i = 1; i <=8; i ++){
+            for(int j = 1; j <= 8; j++){
+                ChessPiece currentPiece = board.getPiece(new ChessPosition(i,j));
+                if(currentPiece != null){
+                    TeamColor posColor = currentPiece.getTeamColor();
+                    if(teamColor != posColor){
+                        //call piece moves && add all possible moves to a collection
+                        Collection<ChessMove> posmoves = currentPiece.pieceMoves(board,new ChessPosition(i,j));
+                        for (ChessMove move: posmoves){
+                            checkMoves.add(move.getEndPosition());
+                        }
+                    }
+                    else{
+                        ChessPiece.PieceType posKing = currentPiece.getPieceType();
+                        if(posKing == ChessPiece.PieceType.KING){
+                            myKing = currentPiece;
+                            kingPostion = new ChessPosition(i,j);
+                        }
+                    }
+                }
+            }
+        }
         //check to see if any moves have an end position where your king is
+        if (kingPostion != null) {
+            boolean isChecked = checkMoves.contains(kingPostion);
+            if(isChecked){
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+
+
+
         return true;
+    }
+
+    public void findPieces(Collection<ChessPosition> posMoves, TeamColor teamColor){
+        for (int i = 1; i <=8; i ++){
+            for(int j = 1; j <= 8; j++){
+                ChessPiece currentPiece = board.getPiece(new ChessPosition(i,j));
+                if(currentPiece != null){
+                    TeamColor posColor = currentPiece.getTeamColor();
+                    if(teamColor == posColor){
+                        //call piece moves && add all possible moves to a collection
+                        Collection<ChessMove> posmoves = currentPiece.pieceMoves(board,new ChessPosition(i,j));
+                        for(ChessMove move: posmoves){
+                            Collection<ChessPosition> myPieces =
+                        }
+                        ChessPiece.PieceType posKing = currentPiece.getPieceType();
+                        if(posKing == ChessPiece.PieceType.KING){
+                            ChessPiece myKing = currentPiece;
+                            ChessPosition kingPostion = new ChessPosition(i,j);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -110,7 +169,8 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        boolean check = isInCheck(teamColor);
+        Collection<ChessMove> valid = validMoves(board, );
     }
 
     /**
@@ -124,6 +184,7 @@ public class ChessGame {
         // for each piece on the board that's your color
         // valid moves
         // if null, return true;
+        return true;
     }
 
     /**
