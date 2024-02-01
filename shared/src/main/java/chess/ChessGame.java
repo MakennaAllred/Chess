@@ -118,7 +118,10 @@ public class ChessGame {
         if(valids.contains(move)){
             ChessPiece current = board.getPiece(start);
             board.addPiece(end, current);
-//            board.addPiece(start,null);
+            board.addPiece(start,null);
+        }
+        else{
+            throw new InvalidMoveException();
         }
     }
 
