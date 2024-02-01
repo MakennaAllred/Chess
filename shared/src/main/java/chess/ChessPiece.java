@@ -238,12 +238,12 @@ public class ChessPiece {
                         total.add(new ChessMove(myPosition,posPosition,null));
                     }
                     if(origColor == ChessGame.TeamColor.WHITE){
-                        pawnMovesCheck(total,board,myPosition,origColor,1,1,true);
-                        pawnMovesCheck(total,board,myPosition,origColor,1,-1,true);
+                        pawnMovesCheck(total,board,myPosition,origColor,1,1,false);
+                        pawnMovesCheck(total,board,myPosition,origColor,1,-1,false);
                     }
                     else{
-                        pawnMovesCheck(total,board,myPosition,origColor,-1,-1,true);
-                        pawnMovesCheck(total,board,myPosition,origColor,-1,1,true);
+                        pawnMovesCheck(total,board,myPosition,origColor,-1,-1,false);
+                        pawnMovesCheck(total,board,myPosition,origColor,-1,1,false);
                     }
                 }
                 else if(forwardRow == endRow){

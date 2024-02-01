@@ -103,12 +103,7 @@ public class ChessGame {
                 boolean check = isInCheck(teamColor);
                 //if false then it is a valid move so add it
                 if(!check) {
-                    if (potPromoPiece != null) {
-                        moves.add(new ChessMove(potentialStart, potentialEnd, potPromoPiece));
-                    }
-                    else{
-                        moves.add(new ChessMove(potentialStart, potentialEnd, null));
-                    }
+                    moves.add(posMove);
                 }
                 //then reverse the move and put it back
                 board.addPiece(potentialEnd,potentialPiece);
