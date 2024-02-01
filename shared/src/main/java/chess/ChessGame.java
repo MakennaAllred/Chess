@@ -90,12 +90,25 @@ public class ChessGame {
                 //look at end position of the chess move & save the piece at that position
                 ChessPiece potentialPiece = board.getPiece(potentialEnd);
                 // put og piece at pot end and put null at start
-                board.addPiece(potentialEnd, current);
-                board.addPiece(potentialStart, null);
+                ChessPiece.PieceType potPromoPiece = posMove.getPromotionPiece();
+                ChessPiece promoPiece = new ChessPiece(teamColor,potPromoPiece);
+                if(potPromoPiece != null){
+                    board.addPiece(potentialEnd, promoPiece);
+                    board.addPiece(potentialStart, null);
+                }
+                else {
+                    board.addPiece(potentialEnd, current);
+                    board.addPiece(potentialStart, null);
+                }
                 boolean check = isInCheck(teamColor);
                 //if false then it is a valid move so add it
-                if(!check){
-                    moves.add(new ChessMove(potentialStart,potentialEnd,null));
+                if(!check) {
+                    if (potPromoPiece != null) {
+                        moves.add(new ChessMove(potentialStart, potentialEnd, potPromoPiece));
+                    }
+                    else{
+                        moves.add(new ChessMove(potentialStart, potentialEnd, null));
+                    }
                 }
                 //then reverse the move and put it back
                 board.addPiece(potentialEnd,potentialPiece);
@@ -115,10 +128,30 @@ public class ChessGame {
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         Collection<ChessMove> valids = validMoves(start);
-        if(valids.contains(move)){
+        if(valids.contains(move)) {
             ChessPiece current = board.getPiece(start);
-            board.addPiece(end, current);
-            board.addPiece(start,null);
+            TeamColor curColor = current.getTeamColor();
+            TeamColor cur = getTeamTurn();
+            if (curColor == cur) {
+                ChessPiece.PieceType potPromoPiece = move.getPromotionPiece();
+                ChessPiece promoPiece = new ChessPiece(curColor,potPromoPiece);
+                if(potPromoPiece != null){
+                    board.addPiece(end, promoPiece);
+                    board.addPiece(start, null);
+                }
+                else {
+                    board.addPiece(end, current);
+                    board.addPiece(start, null);
+                }
+                if(teamTurn == TeamColor.WHITE){
+                    setTeamTurn(TeamColor.BLACK);
+                }
+                else{
+                    setTeamTurn(TeamColor.WHITE);
+                }
+            } else {
+                throw new InvalidMoveException();
+            }
         }
         else{
             throw new InvalidMoveException();

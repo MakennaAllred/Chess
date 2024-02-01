@@ -36,12 +36,6 @@ public class ChessBoard {
     public ChessPiece getPiece(ChessPosition position) {
         int row = position.getRow() - 1;
         int col = position.getColumn() - 1;
-//        boolean b = board[row][col] == null;
-//        if (b) {
-//            return null;
-//        } else {
-//            return board[row][col];
-//        }
         return board[row][col];
 
     }

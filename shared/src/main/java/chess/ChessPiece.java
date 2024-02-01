@@ -237,6 +237,14 @@ public class ChessPiece {
                     if(posPiece == null){
                         total.add(new ChessMove(myPosition,posPosition,null));
                     }
+                    if(origColor == ChessGame.TeamColor.WHITE){
+                        pawnMovesCheck(total,board,myPosition,origColor,1,1,true);
+                        pawnMovesCheck(total,board,myPosition,origColor,1,-1,true);
+                    }
+                    else{
+                        pawnMovesCheck(total,board,myPosition,origColor,-1,-1,true);
+                        pawnMovesCheck(total,board,myPosition,origColor,-1,1,true);
+                    }
                 }
                 else if(forwardRow == endRow){
                     total.add(new ChessMove(myPosition,posPosition,PieceType.ROOK));
