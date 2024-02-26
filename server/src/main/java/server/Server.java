@@ -1,5 +1,6 @@
 package server;
 
+import service.UserService;
 import spark.*;
 
 
@@ -24,9 +25,9 @@ public class Server {
         Spark.stop();
         Spark.awaitStop();
     }
-//    private Object deleteAll(Request req, Response res) throws ResponseException{
-//        service.deleteAll();
-//        res.status(200);
-//        return "";
-//    }
+    private Object deleteAll(Request req, Response res) {
+        UserService.deleteAll();
+        res.status(200);
+        return "";
+    }
 }

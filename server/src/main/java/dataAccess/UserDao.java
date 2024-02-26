@@ -2,15 +2,31 @@ package dataAccess;
 
 import model.UserData;
 
-public class UserDao {
+import java.util.HashMap;
 
-    void createUser(String username, String password){
+public class UserDao implements UserDataAccess {
+    private int nextId = 1;
+    final private HashMap<String, String> users = new HashMap<>();
 
+
+    @Override
+    public UserData createUser(UserData userdata) throws DataAccessException {
+        UserData user = new UserData(userdata.username(),userdata.password(),userdata.email());
+        users.put(userdata.username(), userdata.password());
+        nextId++;
+        return null;
     }
-    void getUser(String username){
 
+    public String getUser(String username){
+        return users.get(username);
     }
-    void clearUser(){
 
+    @Override
+    public void deleteUser(String username) throws DataAccessException {
+        users.remove(username);
+    }
+
+    public void deleteAllUsers() throws DataAccessException{
+        users.clear();
     }
 }
