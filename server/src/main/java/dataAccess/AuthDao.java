@@ -1,17 +1,28 @@
 package dataAccess;
 
 import model.AuthData;
+import model.GameData;
 
-public class AuthDao {
+import java.util.HashMap;
+import java.util.UUID;
 
-    void creatAuth(String username){
-        //return auth token
+public class AuthDao implements AuthDataAccess{
+    final private HashMap<String, AuthData> auths = new HashMap<>();
+    public String createAuth(String username){
+        String token = UUID.randomUUID().toString();
+        AuthData auth = new AuthData(token, username);
+        auths.put(auth.authToken(),auth);
+        return auth.authToken();
     }
 
-    String getAuth(String authToken){
-        return "username";
+    public AuthData getAuth(String authToken){
+        return auths.get(authToken);
     }
-    void deleteAuthToken(){}
+    public void deleteAuthToken(String authToken){
+        auths.remove(authToken);
+    }
 
-    void deleteAllTokens(){}
+    public void deleteAllTokens(){
+        auths.clear();
+    }
 }
