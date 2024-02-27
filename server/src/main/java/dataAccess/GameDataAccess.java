@@ -15,6 +15,6 @@ public interface GameDataAccess {
 
     void updateGame(String username, ChessGame.TeamColor color) throws DataAccessException;
 
-    static void deleteGames() throws DataAccessException;
+    void deleteGames() throws DataAccessException;
 
 }

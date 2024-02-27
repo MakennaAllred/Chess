@@ -1,6 +1,9 @@
 package server;
 
+import dataAccess.AuthDao;
 import dataAccess.DataAccessException;
+import dataAccess.GameDao;
+import dataAccess.UserDao;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
@@ -10,6 +13,18 @@ import javax.xml.crypto.Data;
 
 
 public class Server {
+
+
+    private final UserService userService;
+    private final GameService gameService;
+    private final AuthService authService;
+
+    public Server() {
+        gameService = new GameService(new GameDao());
+        userService = new UserService(new UserDao());
+        authService = new AuthService(new AuthDao());
+    }
+
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -43,9 +58,9 @@ public class Server {
     }
 
     private Object deleteAll(Request req, Response res) throws DataAccessException {
-        UserService.deleteAll();
-        GameService.deleteAll();
-        AuthService.deleteAll();
+        userService.deleteAll();
+        gameService.deleteAll();
+        authService.deleteAll();
         res.status(200);
         return "";
     }
@@ -57,7 +72,7 @@ public class Server {
 
     private Object listGames(Request request, Response response) {
         response.type("application/json");
-        var list = GameService.
+
     }
 
     private Object logout(Request request, Response response) {

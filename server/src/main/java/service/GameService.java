@@ -2,9 +2,7 @@ package service;
 
 import dataAccess.DataAccessException;
 import dataAccess.GameDataAccess;
-import dataAccess.UserDataAccess;
 import model.GameData;
-
 import java.util.Collection;
 
 public class GameService {
@@ -13,9 +11,12 @@ public class GameService {
     public GameService(GameDataAccess gameDataAccess){this.gameDataAccess = gameDataAccess;}
 
     public void deleteAll() throws DataAccessException {
-        GameDataAccess.deleteGames();
+        gameDataAccess.deleteGames();
     }
     public Collection<GameData> listGames() throws DataAccessException{
         return GameDataAccess.listGames();
     }
 }
+
+
+// FIXME: rename to memory gameDao

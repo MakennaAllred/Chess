@@ -6,7 +6,7 @@ import dataAccess.UserDataAccess;
 
 public class AuthService {
 
-    public static void deleteAll() throws DataAccessException {
+    public void deleteAll() throws DataAccessException {
         AuthDataAccess.deleteAllTokens();
     }
 }

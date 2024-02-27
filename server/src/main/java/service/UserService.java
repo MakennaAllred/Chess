@@ -14,7 +14,7 @@ public class UserService {
     }
     public void logout(UserData user){}
 
-    public static void deleteAll() throws DataAccessException {
+    public void deleteAll() throws DataAccessException {
         UserDataAccess.deleteAllUsers();
     }
 }
