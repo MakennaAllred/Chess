@@ -9,6 +9,6 @@ public interface UserDataAccess {
 
     void deleteUser(String username) throws DataAccessException;
 
-    void deleteAllUsers() throws DataAccessException;
+    static void deleteAllUsers() throws DataAccessException;
 }
 

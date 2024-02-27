@@ -10,5 +10,5 @@ public interface AuthDataAccess {
 
     void deleteAuthToken(String authToken) throws DataAccessException;
 
-    void deleteAllTokens() throws DataAccessException;
+    static void deleteAllTokens() throws DataAccessException;
 }

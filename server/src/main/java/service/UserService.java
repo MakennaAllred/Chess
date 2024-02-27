@@ -1,10 +1,12 @@
 package service;
 
+import dataAccess.DataAccessException;
+import dataAccess.UserDataAccess;
 import model.AuthData;
 import model.UserData;
 
 public class UserService {
-    public AuthData register(UserData user){
+    public AuthData registerUser(UserData user){
         return null;
     }
     public AuthData login(UserData user){
@@ -12,5 +14,7 @@ public class UserService {
     }
     public void logout(UserData user){}
 
-    public static void deleteAll(){}
+    public static void deleteAll() throws DataAccessException {
+        UserDataAccess.deleteAllUsers();
+    }
 }

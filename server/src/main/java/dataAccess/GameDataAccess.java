@@ -6,6 +6,8 @@ import model.GameData;
 import java.util.Collection;
 
 public interface GameDataAccess {
+
+
     int createGame(String gameName) throws DataAccessException;
     GameData getGame(int gameID) throws DataAccessException;
 
@@ -13,6 +15,6 @@ public interface GameDataAccess {
 
     void updateGame(String username, ChessGame.TeamColor color) throws DataAccessException;
 
-    void deleteGames() throws DataAccessException;
+    static void deleteGames() throws DataAccessException;
 
 }
