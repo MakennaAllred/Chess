@@ -4,6 +4,7 @@ import dataAccess.AuthDao;
 import dataAccess.DataAccessException;
 import dataAccess.GameDao;
 import dataAccess.UserDao;
+import model.AuthData;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
@@ -64,7 +65,10 @@ public class Server {
         res.status(200);
         return "";
     }
-    private Object joinGame(Request request, Response response) {
+    private Object joinGame(Request request, Response response) throws DataAccessException{
+//       String username =  userService.registerUser();
+//       authService.createAuth(username);
+//       FIXME::figure out update game method and get game from diagram
     }
 
     private Object createGame(Request request, Response response) {
@@ -75,12 +79,20 @@ public class Server {
 
     }
 
-    private Object logout(Request request, Response response) {
+    private Object logout(Request request, Response response) throws DataAccessException {
+        AuthData authDetails = authService.getAuth(authToken);
+        authService.deleteAuthToken(authDetails.authToken());
     }
 
-    private Object login(Request request, Response response) {
+    private Object login(Request request, Response response) throws  DataAccessException{
+        //FIXME::check if user exists
+        authService.createAuth(username);
     }
 
     private Object registerUser(Request request, Response response) throws DataAccessException {
+        userService.getUser();
+        String username = userService.registerUser();
+        authService.createAuth(username);
+
     }
 }

@@ -1,20 +1,20 @@
 package service;
 
 import dataAccess.DataAccessException;
-import dataAccess.GameDataAccess;
+import dataAccess.GameDao;
 import model.GameData;
 import java.util.Collection;
 
 public class GameService {
-    private final GameDataAccess gameDataAccess;
+    private final GameDao gameDao;
 
-    public GameService(GameDataAccess gameDataAccess){this.gameDataAccess = gameDataAccess;}
+    public GameService(GameDao gameDao){this.gameDao = gameDao;}
 
     public void deleteAll() throws DataAccessException {
-        gameDataAccess.deleteGames();
+        gameDao.deleteGames();
     }
     public Collection<GameData> listGames() throws DataAccessException{
-        return GameDataAccess.listGames();
+        return gameDao.listGames();
     }
 }
 
