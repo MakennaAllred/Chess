@@ -15,7 +15,7 @@ public class UserDao implements UserDataAccess {
         return userdata.username();
     }
 
-    public UserData getUser(String username){
+    public UserData getUser(String username) throws DataAccessException{
         return users.get(username);
     }
 

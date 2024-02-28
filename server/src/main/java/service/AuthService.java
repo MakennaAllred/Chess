@@ -8,12 +8,12 @@ public class AuthService {
 
     public AuthService(AuthDao authDao){this.authDao = authDao;}
 
-    public AuthData getAuth(String authToken)throws DataAccessException{
+    public AuthData getAuth(String authToken)throws UnauthorizedException{
         return authDao.getAuth(authToken);
     }
 
-    public String createAuth(String username) throws DataAccessException{
-        return authDao.createAuth(username);
+    public AuthData createAuth(String username) throws DataAccessException{
+        return new AuthData(authDao.createAuth(username), username) ;
     }
 
     public void deleteAuthToken(String authToken) throws DataAccessException{

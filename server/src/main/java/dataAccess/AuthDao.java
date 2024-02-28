@@ -15,7 +15,7 @@ public class AuthDao implements AuthDataAccess{
         return auth.authToken();
     }
 
-    public AuthData getAuth(String authToken){
+    public AuthData getAuth(String authToken) throws UnauthorizedException {
         return auths.get(authToken);
     }
     public void deleteAuthToken(String authToken){

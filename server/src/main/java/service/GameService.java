@@ -13,6 +13,12 @@ public class GameService {
     public void deleteAll() throws DataAccessException {
         gameDao.deleteGames();
     }
+
+    public int createGame(String gameName) throws DataAccessException{
+        return gameDao.createGame(gameName);
+    }
+
+
     public Collection<GameData> listGames() throws DataAccessException{
         return gameDao.listGames();
     }
