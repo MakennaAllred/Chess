@@ -11,6 +11,7 @@ import service.UserService;
 import spark.*;
 
 import java.io.Reader;
+import java.util.Collection;
 
 
 public class Server {
@@ -34,13 +35,13 @@ public class Server {
         Spark.init();
         // Register your endpoints and handle exceptions here.
         Spark.delete("/db", this::deleteAll);
-//        Spark.post("/user", this::registerUser);
+        Spark.post("/user", this::registerUser);
         Spark.post("/session", this::login);
-//        Spark.delete("/session", this::logout);
-//        Spark.get("/game", this::listGames);
+        Spark.delete("/session", this::logout);
+        Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
-//        Spark.put("/game", this::joinGame);
-//
+        Spark.put("/game", this::joinGame);
+
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -72,13 +73,29 @@ public class Server {
         }
 
     }
-    private Object joinGame(Request request, Response response) throws DataAccessException{
-        var game = new Gson().fromJson(request.body(), GameData.class);
-        var auth = request.headers("authorization");
+    private Object joinGame(Request request, Response response) {
+        var game = new Gson().fromJson(request.body(), JoinGameReq.class);
+        var authToken = request.headers("authorization");
         try{
-            String username =  userService.registerUser();
-            authService.createAuth(username);
+            AuthData auth = authService.getAuth(authToken);
+            UserData userInfo =  userService.checkUser(auth.username());
+            GameData gameInfo = gameService.getGame(game.gameID());
+            gameService.updateGame(gameInfo.gameID(), userInfo.username(),game.playerColor());
+            response.status(200);
+            return "{}";
        }
+        catch (DataAccessException e){
+            response.status(500);
+            return new Gson().toJson(new ErrorMessage(e.getMessage()));
+        }
+        catch(UnauthorizedException u){
+            response.status(401);
+            return new Gson().toJson(new ErrorMessage(u.getMessage()));
+
+        } catch (BadRequestException b) {
+            response.status(400);
+            return new Gson().toJson(new ErrorMessage(b.getMessage()));
+        }
 
 
     }
@@ -94,28 +111,51 @@ public class Server {
         }
         catch(DataAccessException e){
             response.status(500);
-            return new Gson().toJson(ErrorMessage.class);
+            return new Gson().toJson(new ErrorMessage(e.getMessage()));
 
         }
 //        catch(BadRequestException b){
 //            response.status(400);
-//            return new Gson().toJson(ErrorMessage.class);
+//        return new Gson().toJson(new ErrorMessage(a.getMessage()));
 //        }
         catch(UnauthorizedException a){
             response.status(401);
-            return new Gson().toJson(ErrorMessage.class);
+            return new Gson().toJson(new ErrorMessage(a.getMessage()));
         }
     }
-//
-//    private Object listGames(Request request, Response response) {
-//
-//
-//    }
-//
-//    private Object logout(Request request, Response response) throws DataAccessException {
-//        AuthData authDetails = authService.getAuth(authToken);
-//        authService.deleteAuthToken(authDetails.authToken());
-//    }
+
+    private Object listGames(Request request, Response response) {
+        try {
+            var auth = request.headers("authorization");
+            AuthData authDetails = authService.getAuth(auth);
+            Collection<GameData> games = gameService.listGames();
+            response.status(200);
+            return new Gson().toJson(games);
+        } catch (DataAccessException e) {
+            response.status(500);
+            return new Gson().toJson(new ErrorMessage(e.getMessage()));
+        } catch (UnauthorizedException a) {
+            response.status(401);
+            return new Gson().toJson(new ErrorMessage(a.getMessage()));
+        }
+    }
+
+    private Object logout(Request request, Response response) throws DataAccessException {
+        try {
+            var auth = request.headers("authorization");
+            AuthData authDetails = authService.getAuth(auth);
+            authService.deleteAuthToken(authDetails.authToken());
+            return "{}";
+        }
+        catch(UnauthorizedException u){
+            response.status(401);
+            return new Gson().toJson(new ErrorMessage(u.getMessage()));
+        }
+        catch(DataAccessException d){
+            response.status(500);
+            return new Gson().toJson(new ErrorMessage(d.getMessage()));
+        }
+    }
 
     private Object login(Request request, Response response) {
         var user = new Gson().fromJson(request.body(), UserData.class);
@@ -126,18 +166,23 @@ public class Server {
         }
         catch(DataAccessException e){
             response.status(500);
-            return new Gson().toJson(ErrorMessage.class);
+            return new Gson().toJson(new ErrorMessage(e.getMessage()));
         }
     }
-//
-//    private Object registerUser(Request request, Response response) throws DataAccessException {
-//        userService.checkUser();
-//        String username = userService.registerUser();
-//        authService.createAuth(username);
-//
-//    }
+
+    private Object registerUser(Request request, Response response) throws DataAccessException {
+       try {
+           var user = new Gson().fromJson(request.body(), UserData.class);
+           userService.checkUser(user.username());
+           String username = userService.registerUser(user);
+           AuthData auth = authService.createAuth(username);
+           response.status(200);
+           return new Gson().toJson(auth);
+       }
+       catch(DataAccessException e){
+           response.status(500);
+           return new Gson().toJson(new ErrorMessage(e.getMessage()));
+       }
+    }
 }
 
-// gotta set res.status and return json to gson stuff
-// create record for need request and response classes
-//make update game in dao, get game, set username, and put back

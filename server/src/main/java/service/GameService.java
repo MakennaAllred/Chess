@@ -1,5 +1,7 @@
 package service;
 
+import chess.ChessGame;
+import dataAccess.BadRequestException;
 import dataAccess.DataAccessException;
 import dataAccess.GameDao;
 import model.GameData;
@@ -21,6 +23,14 @@ public class GameService {
 
     public Collection<GameData> listGames() throws DataAccessException{
         return gameDao.listGames();
+    }
+
+    public GameData getGame(int gameID) throws BadRequestException {
+        return gameDao.getGame(gameID);
+    }
+
+    public void updateGame(int gameID, String username, String color) throws DataAccessException{
+        gameDao.updateGame(gameID, username,color);
     }
 }
 

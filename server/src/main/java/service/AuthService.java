@@ -13,7 +13,7 @@ public class AuthService {
     }
 
     public AuthData createAuth(String username) throws DataAccessException{
-        return new AuthData(authDao.createAuth(username), username) ;
+        return new AuthData(authDao.createAuth(username),username);
     }
 
     public void deleteAuthToken(String authToken) throws DataAccessException{
