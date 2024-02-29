@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.*;
+import dataAccess.customExceptions.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -10,7 +11,6 @@ import service.GameService;
 import service.UserService;
 import spark.*;
 
-import java.io.Reader;
 import java.util.Collection;
 
 
@@ -68,10 +68,7 @@ public class Server {
             res.status(200);
             return "{}";
         }
-//        catch(DataAccessException e){
-//            res.status(500);
-//            return new Gson().toJson(new ErrorMessage(e.getMessage()));
-//        }
+
         catch (UnauthorizedException e) {
             res.status(401);
             return new  Gson().toJson(new ErrorMessage(e.getMessage()));

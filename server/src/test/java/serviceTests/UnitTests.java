@@ -2,6 +2,10 @@ package serviceTests;
 
 import chess.ChessGame;
 import dataAccess.*;
+import dataAccess.customExceptions.AlreadyTakenException;
+import dataAccess.customExceptions.BadRequestException;
+import dataAccess.customExceptions.DataAccessException;
+import dataAccess.customExceptions.UnauthorizedException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -88,7 +92,7 @@ public class UnitTests {
         AuthData auth = userService.registerUser(user);
         int gameID = gameService.createGame(auth.authToken(),new GameData(1,null,null, "fakeGame", new ChessGame()));
         Collection<GameData> games =  gameService.listGames(auth.authToken());
-        assertEquals(0,games.size());
+        assertEquals(1,games.size());
     }
 
     @Test

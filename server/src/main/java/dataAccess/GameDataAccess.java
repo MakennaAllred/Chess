@@ -1,5 +1,9 @@
 package dataAccess;
 
+import dataAccess.customExceptions.AlreadyTakenException;
+import dataAccess.customExceptions.BadRequestException;
+import dataAccess.customExceptions.DataAccessException;
+import dataAccess.customExceptions.UnauthorizedException;
 import model.GameData;
 
 import java.util.Collection;

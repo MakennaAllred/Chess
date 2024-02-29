@@ -229,17 +229,6 @@ public class ChessGame {
             if(gameOver(teamColor)){
                 return true;
             }
-//            Collection<ChessPosition> myPieces = new ArrayList<>();
-//            findPieces(myPieces, teamColor);
-//            Collection<ChessMove> valid = new ArrayList<>();
-//            for (ChessPosition pos : myPieces) {
-//                valid.addAll(validMoves(pos));
-//            }
-//            if (valid.isEmpty()) {
-//                return true;
-//            }
-//
-//            return false;
         }
         return false;
 
