@@ -7,8 +7,8 @@ public interface UserDataAccess {
 
     UserData getUser(String username) throws DataAccessException;
 
-    UserData checkUsers(UserData user) throws DataAccessException;
+    UserData checkUsers(UserData user) throws DataAccessException, UnauthorizedException;
 
-    void deleteAllUsers() throws DataAccessException;
+    void deleteAllUsers() throws UnauthorizedException;
 }
 

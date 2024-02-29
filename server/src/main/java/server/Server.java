@@ -68,9 +68,13 @@ public class Server {
             res.status(200);
             return "{}";
         }
-        catch(DataAccessException e){
-            res.status(500);
-            return new Gson().toJson(new ErrorMessage(e.getMessage()));
+//        catch(DataAccessException e){
+//            res.status(500);
+//            return new Gson().toJson(new ErrorMessage(e.getMessage()));
+//        }
+        catch (UnauthorizedException e) {
+            res.status(401);
+            return new  Gson().toJson(new ErrorMessage(e.getMessage()));
         }
 
     }
@@ -85,6 +89,10 @@ public class Server {
         catch (DataAccessException e){
             response.status(500);
             return new Gson().toJson(new ErrorMessage(e.getMessage()));
+        }
+        catch(AlreadyTakenException a){
+            response.status(403);
+            return new Gson().toJson(new ErrorMessage(a.getMessage()));
         }
         catch(UnauthorizedException u){
             response.status(401);
@@ -125,7 +133,7 @@ public class Server {
             var auth = request.headers("authorization");
             Collection<GameData> games = gameService.listGames(auth);
             response.status(200);
-            return new Gson().toJson(games);
+            return new Gson().toJson(new ListGamesRes(games));
         } catch (DataAccessException e) {
             response.status(500);
             return new Gson().toJson(new ErrorMessage(e.getMessage()));
@@ -162,6 +170,9 @@ public class Server {
         catch(DataAccessException e){
             response.status(500);
             return new Gson().toJson(new ErrorMessage(e.getMessage()));
+        } catch (UnauthorizedException e) {
+            response.status(401);
+            return new Gson().toJson(new ErrorMessage(e.getMessage()));
         }
     }
 
@@ -174,6 +185,12 @@ public class Server {
        }
        catch(DataAccessException e){
            response.status(500);
+           return new Gson().toJson(new ErrorMessage(e.getMessage()));
+       } catch (AlreadyTakenException e) {
+           response.status(403);
+           return new Gson().toJson(new ErrorMessage(e.getMessage()));
+       } catch (BadRequestException e) {
+           response.status(400);
            return new Gson().toJson(new ErrorMessage(e.getMessage()));
        }
     }

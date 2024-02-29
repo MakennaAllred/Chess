@@ -18,11 +18,11 @@ public class AuthDao implements AuthDataAccess{
     public AuthData getAuth(String authToken) throws UnauthorizedException {
         return auths.get(authToken);
     }
-    public void deleteAuthToken(String authToken){
+    public void deleteAuthToken(String authToken)throws UnauthorizedException{
         auths.remove(authToken);
     }
 
-    public void deleteAllTokens(){
+    public void deleteAllTokens() throws UnauthorizedException{
         auths.clear();
     }
 }

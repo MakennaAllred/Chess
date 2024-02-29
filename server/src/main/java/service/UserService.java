@@ -10,23 +10,26 @@ public class UserService {
     private final AuthDataAccess authDao;
 
     public UserService(UserDataAccess userDao, AuthDataAccess authDao){this.userDao = userDao; this.authDao=authDao;}
-    public AuthData registerUser(UserData user)throws DataAccessException{
+    public AuthData registerUser(UserData user) throws DataAccessException, AlreadyTakenException, BadRequestException {
+        if(user.password() == null){
+            throw new BadRequestException("Error: Need password to register");
+        }
         if (userDao.getUser(user.username()) == null){
             String username = userDao.createUser(user);
             return authDao.createAuth(username);
         }
         else{
-            throw new DataAccessException("Error: no user created");
+            throw new AlreadyTakenException("Error: Already Taken");
         }
     }
 
-    public AuthData login(UserData user)throws DataAccessException{
+    public AuthData login(UserData user) throws DataAccessException, UnauthorizedException {
        UserData authenticatedUser = userDao.checkUsers(user);
         if (authenticatedUser != null){
            return authDao.createAuth(authenticatedUser.username());
        }
         else{
-            throw new DataAccessException("Error: Couldn't log user in");
+            throw new UnauthorizedException("Error: Unauthorized");
         }
     }
 
@@ -36,7 +39,7 @@ public class UserService {
             authDao.deleteAuthToken(authToken);
         }
         else{
-            throw new DataAccessException("Error: No token to delete");
+            throw new UnauthorizedException("Error: No user to logout");
         }
     }
 

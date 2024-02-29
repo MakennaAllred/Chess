@@ -14,8 +14,8 @@ public interface GameDataAccess {
 
     Collection<GameData> listGames() throws DataAccessException;
 
-    void updateGame(int gameID, String username, String color) throws DataAccessException, BadRequestException;
+    void updateGame(int gameID, String username, String color) throws DataAccessException, BadRequestException, AlreadyTakenException;
 
-    void deleteAllGames() throws DataAccessException;
+    void deleteAllGames() throws UnauthorizedException;
 
 }

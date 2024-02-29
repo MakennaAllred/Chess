@@ -18,7 +18,7 @@ public class GameService {
              return gameDao.createGame(gameData.gameName());
         }
         else{
-            throw new BadRequestException("Error: Unauthorized");
+            throw new UnauthorizedException("Error: Unauthorized");
         }
     }
 
@@ -34,11 +34,19 @@ public class GameService {
     }
 
 
-    public void joinGame(String authToken, JoinGameReq gameData) throws BadRequestException, UnauthorizedException, DataAccessException {
+    public void joinGame(String authToken, JoinGameReq gameData) throws BadRequestException, UnauthorizedException, DataAccessException, AlreadyTakenException {
         AuthData verifiedUser = authDao.getAuth(authToken);
         if(verifiedUser != null){
             GameData game = gameDao.getGame(gameData.gameID());
-            gameDao.updateGame(game.gameID(),verifiedUser.username(),gameData.playerColor());
+            if(game != null) {
+                gameDao.updateGame(game.gameID(), verifiedUser.username(), gameData.playerColor());
+            }
+            else{
+                throw new BadRequestException("Error: No game with that ID");
+            }
+        }
+        else{
+            throw new UnauthorizedException("Error: Unauthorized");
         }
     }
 }

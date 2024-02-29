@@ -26,24 +26,36 @@ public class GameDao implements GameDataAccess{
     public Collection<GameData> listGames(){
         return games.values();
     }
-    public void updateGame(int gameID, String username, String color) throws DataAccessException, BadRequestException {
+    public void updateGame(int gameID, String username, String color) throws DataAccessException, BadRequestException, AlreadyTakenException {
             GameData game = getGame(gameID);
-            games.remove(gameID);
-            if (Objects.equals(username, "WHITE")) {
-                GameData updated = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
-                games.put(updated.gameID(), updated);
+            if(game == null){
+                throw new DataAccessException("Error: No Game by that name");
             }
-            if (Objects.equals(username, "BLACK")) {
-                GameData updated = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
-                games.put(updated.gameID(), updated);
+            if (Objects.equals(color, "WHITE")) {
+                if(game.whiteUsername() == null) {
+                    GameData updated = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
+                    games.remove(gameID);
+                    games.put(updated.gameID(), updated);
+                }
+                else{
+                    throw new AlreadyTakenException("Error: Already Taken");
+                }
+            }
+            if (Objects.equals(color, "BLACK")) {
+                if(game.blackUsername() == null) {
+                    GameData updated = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
+                    games.remove(gameID);
+                    games.put(updated.gameID(), updated);
+                }
+                else{
+                    throw new AlreadyTakenException("Error: Already Taken");
+                }
             }
 
     }
 
-    public void deleteAllGames(){
+    public void deleteAllGames() throws UnauthorizedException{
         games.clear();
     }
 }
 
-
-//do check before update game, have update game do only one thing

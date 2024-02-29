@@ -12,7 +12,7 @@ public class ClearService {
     public ClearService(AuthDataAccess authDao, UserDataAccess userDao, GameDataAccess gameDao){this.authDao = authDao; this.userDao = userDao; this.gameDao = gameDao;}
 
 
-    public void deleteAll() throws DataAccessException {
+    public void deleteAll() throws UnauthorizedException {
         authDao.deleteAllTokens();
         userDao.deleteAllUsers();
         gameDao.deleteAllGames();

@@ -21,25 +21,21 @@ public class UserDao implements UserDataAccess {
     }
 
 
-    public void deleteUser(String username) throws DataAccessException {
-        users.remove(username);
-    }
 
-    public void deleteAllUsers() throws DataAccessException{
+    public void deleteAllUsers() throws UnauthorizedException{
         users.clear();
     }
 
-    public UserData checkUsers(UserData user) throws DataAccessException{
+    public UserData checkUsers(UserData user) throws DataAccessException, UnauthorizedException {
         UserData memInfo = users.get(user.username());
         if(memInfo != null){
             if(Objects.equals(memInfo.password(), user.password())){
                 return memInfo;
             }
             else{
-                throw new DataAccessException("Error: User Info doesn't match");
+                throw new UnauthorizedException("Error: User Info doesn't match");
             }
-        }else{
-            throw new DataAccessException("Error: No user");
         }
+        return null;
     }
 }
