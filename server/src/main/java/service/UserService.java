@@ -11,8 +11,8 @@ public class UserService {
 
     public UserService(UserDataAccess userDao, AuthDataAccess authDao){this.userDao = userDao; this.authDao=authDao;}
     public AuthData registerUser(UserData user) throws DataAccessException, AlreadyTakenException, BadRequestException {
-        if(user.password() == null){
-            throw new BadRequestException("Error: Need password to register");
+        if(user.password() == null || user.username() == null || user.email() == null){
+            throw new BadRequestException("Error: Need to fill in fields");
         }
         if (userDao.getUser(user.username()) == null){
             String username = userDao.createUser(user);

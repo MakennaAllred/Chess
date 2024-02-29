@@ -18,8 +18,7 @@ public class GameDao implements GameDataAccess{
         return game.gameID();
     }
 
-//    public void updateGame(int gameID, String username, String color){
-//    }
+
     public GameData getGame(int gameID)throws BadRequestException{
         return games.get(gameID);
     }
