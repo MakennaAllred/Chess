@@ -6,10 +6,10 @@ import model.GameData;
 import java.util.Collection;
 
 public class GameService {
-    private final GameDao gameDao;
-    private final AuthDao authDao;
+    private final GameDataAccess gameDao;
+    private final AuthDataAccess authDao;
 
-    public GameService(GameDao gameDao, AuthDao authDao){this.gameDao = gameDao; this.authDao = authDao;}
+    public GameService(GameDataAccess gameDao, AuthDataAccess authDao){this.gameDao = gameDao; this.authDao = authDao;}
 
 
     public int createGame(String authToken, GameData gameData) throws DataAccessException, UnauthorizedException, BadRequestException {
@@ -23,18 +23,24 @@ public class GameService {
     }
 
 
-    public Collection<GameData> listGames() throws DataAccessException{
-        return gameDao.listGames();
+    public Collection<GameData> listGames(String authToken) throws DataAccessException, UnauthorizedException {
+        AuthData auth = authDao.getAuth(authToken);
+        if (auth != null) {
+            return gameDao.listGames();
+        }
+        else{
+            throw new UnauthorizedException("Error: Can't access games");
+        }
     }
 
-    public GameData getGame(int gameID) throws BadRequestException {
-        return gameDao.getGame(gameID);
-    }
 
-    public void updateGame(int gameID, String username, String color) throws DataAccessException{
-        gameDao.updateGame(gameID, username,color);
+    public void joinGame(String authToken, JoinGameReq gameData) throws BadRequestException, UnauthorizedException, DataAccessException {
+        AuthData verifiedUser = authDao.getAuth(authToken);
+        if(verifiedUser != null){
+            GameData game = gameDao.getGame(gameData.gameID());
+            gameDao.updateGame(game.gameID(),verifiedUser.username(),gameData.playerColor());
+        }
     }
 }
 
 
-// FIXME: rename to memory gameDao

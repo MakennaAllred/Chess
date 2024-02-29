@@ -4,12 +4,12 @@ import dataAccess.*;
 import model.AuthData;
 
 public class ClearService {
-    private final AuthDao authDao;
-    private final UserDao userDao;
-    private final GameService gameDao;
+    private final AuthDataAccess authDao;
+    private final UserDataAccess userDao;
+    private final GameDataAccess gameDao;
 
 
-    public ClearService(AuthDao authDao, UserDao userDao, GameDao gameDao){this.authDao = authDao; this.userDao = userDao; this.gameDao = gameDao;}
+    public ClearService(AuthDataAccess authDao, UserDataAccess userDao, GameDataAccess gameDao){this.authDao = authDao; this.userDao = userDao; this.gameDao = gameDao;}
 
 
     public void deleteAll() throws DataAccessException {

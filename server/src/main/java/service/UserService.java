@@ -1,18 +1,15 @@
 package service;
 
-import dataAccess.AuthDao;
-import dataAccess.DataAccessException;
-import dataAccess.UnauthorizedException;
-import dataAccess.UserDao;
+import dataAccess.*;
 import model.AuthData;
 import model.UserData;
 
 public class UserService {
 
-    private final UserDao userDao;
-    private final AuthDao authDao;
+    private final UserDataAccess userDao;
+    private final AuthDataAccess authDao;
 
-    public UserService(UserDao userDao, AuthDao authDao){this.userDao = userDao; this.authDao=authDao;}
+    public UserService(UserDataAccess userDao, AuthDataAccess authDao){this.userDao = userDao; this.authDao=authDao;}
     public AuthData registerUser(UserData user)throws DataAccessException{
         if (userDao.getUser(user.username()) == null){
             String username = userDao.createUser(user);
@@ -22,9 +19,7 @@ public class UserService {
             throw new DataAccessException("Error: no user created");
         }
     }
-    public UserData checkUser(String username) throws DataAccessException{
-        return userDao.getUser(username);
-    }
+
     public AuthData login(UserData user)throws DataAccessException{
        UserData authenticatedUser = userDao.checkUsers(user);
         if (authenticatedUser != null){
@@ -45,7 +40,4 @@ public class UserService {
         }
     }
 
-    public void deleteAll() throws DataAccessException {
-        userDao.deleteAllUsers();
-    }
 }

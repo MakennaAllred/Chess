@@ -26,8 +26,7 @@ public class GameDao implements GameDataAccess{
     public Collection<GameData> listGames(){
         return games.values();
     }
-    public void updateGame(int gameID, String username, String color) throws DataAccessException{
-        try {
+    public void updateGame(int gameID, String username, String color) throws DataAccessException, BadRequestException {
             GameData game = getGame(gameID);
             games.remove(gameID);
             if (Objects.equals(username, "WHITE")) {
@@ -38,10 +37,7 @@ public class GameDao implements GameDataAccess{
                 GameData updated = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
                 games.put(updated.gameID(), updated);
             }
-        }
-        catch(BadRequestException b){
-            throw new RuntimeException("Bad Request");
-        }
+
     }
 
     public void deleteAllGames(){

@@ -7,7 +7,7 @@ public interface UserDataAccess {
 
     UserData getUser(String username) throws DataAccessException;
 
-    void deleteUser(String username) throws DataAccessException;
+    UserData checkUsers(UserData user) throws DataAccessException;
 
     void deleteAllUsers() throws DataAccessException;
 }

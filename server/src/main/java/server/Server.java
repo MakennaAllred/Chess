@@ -5,7 +5,6 @@ import dataAccess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import service.AuthService;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -23,9 +22,12 @@ public class Server {
     private final ClearService clearService;
 
     public Server() {
-        gameService = new GameService(new GameDao());
-        userService = new UserService(new UserDao());
-        clearService = new ClearService(new AuthDao());
+        AuthDataAccess authDao = new AuthDao();
+        GameDataAccess gameDao = new GameDao();
+        UserDataAccess userDao = new UserDao();
+        gameService = new GameService(gameDao,authDao);
+        userService = new UserService(userDao,authDao);
+        clearService = new ClearService(authDao, userDao, gameDao);
     }
 
 
@@ -76,21 +78,10 @@ public class Server {
         var game = new Gson().fromJson(request.body(), JoinGameReq.class);
         var authToken = request.headers("authorization");
         try{
-            AuthData auth = authService.getAuth(authToken);
-            if(auth == null){
-                throw new UnauthorizedException("Error: unauthorized");
+            gameService.joinGame(authToken, game);
+            response.status(200);
+            return "{}";
             }
-//            UserData userInfo =  userService.checkUser(auth.username());
-            GameData gameInfo = gameService.getGame(game.gameID());
-            if(gameInfo != null ) {
-                gameService.updateGame(gameInfo.gameID(), auth.username(), game.playerColor());
-                response.status(200);
-                return "{}";
-            }
-            else{
-                return "[]";
-            }
-       }
         catch (DataAccessException e){
             response.status(500);
             return new Gson().toJson(new ErrorMessage(e.getMessage()));
@@ -132,8 +123,7 @@ public class Server {
     private Object listGames(Request request, Response response) {
         try {
             var auth = request.headers("authorization");
-            AuthData authDetails = authService.getAuth(auth);
-            Collection<GameData> games = gameService.listGames();
+            Collection<GameData> games = gameService.listGames(auth);
             response.status(200);
             return new Gson().toJson(games);
         } catch (DataAccessException e) {
