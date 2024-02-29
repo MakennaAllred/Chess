@@ -8,11 +8,11 @@ import java.util.UUID;
 
 public class AuthDao implements AuthDataAccess{
     final private HashMap<String, AuthData> auths = new HashMap<>();
-    public String createAuth(String username){
+    public AuthData createAuth(String username){
         String token = UUID.randomUUID().toString();
         AuthData auth = new AuthData(token, username);
         auths.put(auth.authToken(),auth);
-        return auth.authToken();
+        return auth;
     }
 
     public AuthData getAuth(String authToken) throws UnauthorizedException {

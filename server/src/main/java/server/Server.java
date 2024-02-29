@@ -6,6 +6,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import service.AuthService;
+import service.ClearService;
 import service.GameService;
 import service.UserService;
 import spark.*;
@@ -19,12 +20,12 @@ public class Server {
 
     private final UserService userService;
     private final GameService gameService;
-    private final AuthService authService;
+    private final ClearService clearService;
 
     public Server() {
         gameService = new GameService(new GameDao());
         userService = new UserService(new UserDao());
-        authService = new AuthService(new AuthDao());
+        clearService = new ClearService(new AuthDao());
     }
 
 
@@ -61,9 +62,7 @@ public class Server {
 
     private Object deleteAll(Request req, Response res) {
         try {
-            userService.deleteAll();
-            gameService.deleteAll();
-            authService.deleteAll();
+            clearService.deleteAll();
             res.status(200);
             return "{}";
         }
@@ -78,10 +77,13 @@ public class Server {
         var authToken = request.headers("authorization");
         try{
             AuthData auth = authService.getAuth(authToken);
-            UserData userInfo =  userService.checkUser(auth.username());
+            if(auth == null){
+                throw new UnauthorizedException("Error: unauthorized");
+            }
+//            UserData userInfo =  userService.checkUser(auth.username());
             GameData gameInfo = gameService.getGame(game.gameID());
-            if(auth == null || userInfo == null || gameInfo == null ) {
-                gameService.updateGame(gameInfo.gameID(), userInfo.username(), game.playerColor());
+            if(gameInfo != null ) {
+                gameService.updateGame(gameInfo.gameID(), auth.username(), game.playerColor());
                 response.status(200);
                 return "{}";
             }
@@ -102,15 +104,13 @@ public class Server {
             return new Gson().toJson(new ErrorMessage(b.getMessage()));
         }
 
-
     }
 
     private Object createGame(Request request, Response response) {
         var game = new Gson().fromJson(request.body(), GameData.class);
         var auth = request.headers("authorization");
         try{
-            authService.getAuth(auth);
-            int gameID = gameService.createGame(game.gameName());
+            int gameID = gameService.createGame(auth, game);
             response.status(200);
             return new Gson().toJson(new CreateGameRes(gameID));
         }
@@ -119,10 +119,10 @@ public class Server {
             return new Gson().toJson(new ErrorMessage(e.getMessage()));
 
         }
-//        catch(BadRequestException b){
-//            response.status(400);
-//        return new Gson().toJson(new ErrorMessage(a.getMessage()));
-//        }
+        catch(BadRequestException b){
+            response.status(400);
+        return new Gson().toJson(new ErrorMessage(b.getMessage()));
+        }
         catch(UnauthorizedException a){
             response.status(401);
             return new Gson().toJson(new ErrorMessage(a.getMessage()));
@@ -145,11 +145,11 @@ public class Server {
         }
     }
 
-    private Object logout(Request request, Response response) throws DataAccessException {
+    private Object logout(Request request, Response response){
         try {
             var auth = request.headers("authorization");
-            AuthData authDetails = authService.getAuth(auth);
-            authService.deleteAuthToken(authDetails.authToken());
+            userService.logout(auth);
+            response.status(200);
             return "{}";
         }
         catch(UnauthorizedException u){
@@ -165,7 +165,7 @@ public class Server {
     private Object login(Request request, Response response) {
         var user = new Gson().fromJson(request.body(), UserData.class);
         try{
-        AuthData auth = authService.createAuth(user.username());
+        AuthData auth = userService.login(user);
         response.status(200);
             return new Gson().toJson(auth);
         }
@@ -175,12 +175,10 @@ public class Server {
         }
     }
 
-    private Object registerUser(Request request, Response response) throws DataAccessException {
+    private Object registerUser(Request request, Response response){
        try {
            var user = new Gson().fromJson(request.body(), UserData.class);
-           userService.checkUser(user.username());
-           String username = userService.registerUser(user);
-           AuthData auth = authService.createAuth(username);
+           AuthData auth = userService.registerUser(user);
            response.status(200);
            return new Gson().toJson(auth);
        }

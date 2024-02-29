@@ -1,6 +1,5 @@
 package dataAccess;
 
-import chess.ChessGame;
 import model.GameData;
 
 import java.util.Collection;
@@ -17,6 +16,6 @@ public interface GameDataAccess {
 
     void updateGame(int gameID, String username, String color) throws DataAccessException;
 
-    void deleteGames() throws DataAccessException;
+    void deleteAllGames() throws DataAccessException;
 
 }

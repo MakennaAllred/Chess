@@ -1,23 +1,25 @@
 package service;
 
-import chess.ChessGame;
-import dataAccess.BadRequestException;
-import dataAccess.DataAccessException;
-import dataAccess.GameDao;
+import dataAccess.*;
+import model.AuthData;
 import model.GameData;
 import java.util.Collection;
 
 public class GameService {
     private final GameDao gameDao;
+    private final AuthDao authDao;
 
-    public GameService(GameDao gameDao){this.gameDao = gameDao;}
+    public GameService(GameDao gameDao, AuthDao authDao){this.gameDao = gameDao; this.authDao = authDao;}
 
-    public void deleteAll() throws DataAccessException {
-        gameDao.deleteGames();
-    }
 
-    public int createGame(String gameName) throws DataAccessException{
-        return gameDao.createGame(gameName);
+    public int createGame(String authToken, GameData gameData) throws DataAccessException, UnauthorizedException, BadRequestException {
+        AuthData verifiedAuth = authDao.getAuth(authToken);
+        if(verifiedAuth != null) {
+             return gameDao.createGame(gameData.gameName());
+        }
+        else{
+            throw new BadRequestException("Error: Unauthorized");
+        }
     }
 
 

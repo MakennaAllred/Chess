@@ -44,7 +44,7 @@ public class GameDao implements GameDataAccess{
         }
     }
 
-    public void deleteGames(){
+    public void deleteAllGames(){
         games.clear();
     }
 }
