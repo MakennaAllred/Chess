@@ -69,7 +69,7 @@ public class Server {
         }
         catch(DataAccessException e){
             res.status(500);
-            return new Gson().toJson(ErrorMessage.class);
+            return new Gson().toJson(new ErrorMessage(e.getMessage()));
         }
 
     }
@@ -80,9 +80,14 @@ public class Server {
             AuthData auth = authService.getAuth(authToken);
             UserData userInfo =  userService.checkUser(auth.username());
             GameData gameInfo = gameService.getGame(game.gameID());
-            gameService.updateGame(gameInfo.gameID(), userInfo.username(),game.playerColor());
-            response.status(200);
-            return "{}";
+            if(auth == null || userInfo == null || gameInfo == null ) {
+                gameService.updateGame(gameInfo.gameID(), userInfo.username(), game.playerColor());
+                response.status(200);
+                return "{}";
+            }
+            else{
+                return "[]";
+            }
        }
         catch (DataAccessException e){
             response.status(500);
