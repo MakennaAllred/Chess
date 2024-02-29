@@ -1,7 +1,7 @@
 package dataAccess;
 
+import dataAccess.customExceptions.UnauthorizedException;
 import model.AuthData;
-import model.GameData;
 
 import java.util.HashMap;
 import java.util.UUID;

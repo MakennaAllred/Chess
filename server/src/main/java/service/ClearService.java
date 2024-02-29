@@ -1,7 +1,7 @@
 package service;
 
 import dataAccess.*;
-import model.AuthData;
+import dataAccess.customExceptions.UnauthorizedException;
 
 public class ClearService {
     private final AuthDataAccess authDao;

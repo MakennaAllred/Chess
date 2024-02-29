@@ -1,4 +1,6 @@
 package dataAccess;
+import dataAccess.customExceptions.DataAccessException;
+import dataAccess.customExceptions.UnauthorizedException;
 import model.UserData;
 
 

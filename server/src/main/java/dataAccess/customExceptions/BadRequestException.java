@@ -1,4 +1,4 @@
-package dataAccess;
+package dataAccess.customExceptions;
 
 public class BadRequestException extends Exception{
     public BadRequestException(String message) {

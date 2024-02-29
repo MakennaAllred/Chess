@@ -1,5 +1,7 @@
 package dataAccess;
 
+import dataAccess.customExceptions.DataAccessException;
+import dataAccess.customExceptions.UnauthorizedException;
 import model.UserData;
 
 import java.util.HashMap;
@@ -22,7 +24,7 @@ public class UserDao implements UserDataAccess {
 
 
 
-    public void deleteAllUsers() throws UnauthorizedException{
+    public void deleteAllUsers() throws UnauthorizedException {
         users.clear();
     }
 
