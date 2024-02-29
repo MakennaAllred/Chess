@@ -116,6 +116,11 @@ public class UnitTests {
         int gameID = gameService.createGame(auth.authToken(),new GameData(1,null,null, "fakeGame", new ChessGame()));
         assertThrows(BadRequestException.class, () ->gameService.joinGame(auth.authToken(), new JoinGameReq("WHITE", 0)));
     }
+    @Test
+    public void clearAllTest() throws UnauthorizedException, DataAccessException {
+        clearService.deleteAll();
+        assertEquals(0, gameDao.listGames().size());
+    }
 }
 
 
