@@ -22,9 +22,9 @@ public class Server {
     private final ClearService clearService;
 
     public Server() {
-        AuthDataAccess authDao = new AuthDao();
-        GameDataAccess gameDao = new GameDao();
-        UserDataAccess userDao = new UserDao();
+        AuthDataAccess authDao = new MemoryAuthDao();
+        GameDataAccess gameDao = new MemoryGameDao();
+        UserDataAccess userDao = new MemoryUserDao();
         gameService = new GameService(gameDao,authDao);
         userService = new UserService(userDao,authDao);
         clearService = new ClearService(authDao, userDao, gameDao);

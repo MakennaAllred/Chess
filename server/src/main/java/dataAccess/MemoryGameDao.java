@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Objects;
 
-public class GameDao implements GameDataAccess{
+public class MemoryGameDao implements GameDataAccess{
     private int nextGame = 1;
     final private HashMap<Integer, GameData> games = new HashMap<>();
     public int createGame(String gameName)throws DataAccessException {

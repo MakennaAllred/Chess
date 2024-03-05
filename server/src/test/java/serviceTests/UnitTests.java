@@ -22,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class UnitTests {
     UserData user = new UserData("user","pass","e@mail.com");
-    AuthDataAccess authDao = new AuthDao();
-    GameDataAccess gameDao = new GameDao();
-    UserDataAccess userDao = new UserDao();
+    AuthDataAccess authDao = new MemoryAuthDao();
+    GameDataAccess gameDao = new MemoryGameDao();
+    UserDataAccess userDao = new MemoryUserDao();
     GameService gameService = new GameService(gameDao, authDao);
     UserService userService = new UserService(userDao,authDao);
     ClearService clearService = new ClearService(authDao, userDao, gameDao);

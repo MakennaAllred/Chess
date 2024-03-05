@@ -6,7 +6,7 @@ import model.AuthData;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class AuthDao implements AuthDataAccess{
+public class MemoryAuthDao implements AuthDataAccess{
     final private HashMap<String, AuthData> auths = new HashMap<>();
     public AuthData createAuth(String username){
         String token = UUID.randomUUID().toString();
