@@ -31,8 +31,14 @@ public class Server {
     }
 
 
-    public int run(int desiredPort) {
+    public int run(int desiredPort)  {
         Spark.port(desiredPort);
+        //create db, & tables
+        try {
+            DatabaseManager.createDatabase();
+        }catch(DataAccessException e){
+            return -1;
+        }
 
         Spark.staticFiles.location("web");
         Spark.init();
