@@ -28,7 +28,7 @@ public class SQLUserDao implements UserDataAccess{
 
 
         public String getUser(String username) throws DataAccessException {
-            String statement = "SELECT FROM users WHERE username = ?";
+            String statement = "SELECT * FROM users WHERE username = ?";
             try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(statement)) {
                 stmt.setString(1,username);
                 ResultSet rs = stmt.executeQuery();
@@ -41,7 +41,6 @@ public class SQLUserDao implements UserDataAccess{
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
     public void deleteAllUsers() throws UnauthorizedException, DataAccessException {
@@ -51,31 +50,30 @@ public class SQLUserDao implements UserDataAccess{
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
-
     }
 
     public UserData checkUsers(UserData user) throws DataAccessException, UnauthorizedException {
         String statement = "SELECT FROM users WHERE username = ?";
-        String pass = null;
         try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(statement)) {
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
                 String name = rs.getString(1);
-                pass = rs.getString(2);
+                String pass = rs.getString(2);
                 String email = rs.getString(3);
-            }
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            boolean match =  encoder.matches(user.password(), pass);
-            if(match){
-                return user;
-            }
-            else{
-                throw new UnauthorizedException("unauthorized");
+                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+                boolean match =  encoder.matches(user.password(), pass);
+                if(match){
+                    return new UserData(name,pass, email);
+                }
+                else{
+                    throw new UnauthorizedException("unauthorized");
+                }
             }
 
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
             }
+        return null;
         }
 
 }

@@ -87,7 +87,7 @@ public class DatabaseManager {
                 "whiteUsername VARCHAR(255)" +
                 "blackUsername VARCHAR(255)" +
                 "gameName VARCHAR(255) NOT NULL" +
-                "game chess game NOT NULL )";
+                "game TEXT NOT NULL )";
         statements.add(sql1);
         String sql2 = "CREATE TABLE IF NOT EXISTS auths(" +
                 "id INT AUTO_INCREMENT PRIMARY KEY" +

@@ -30,7 +30,7 @@ public class UnitTests {
     ClearService clearService = new ClearService(authDao, userDao, gameDao);
 //Clear test
     @BeforeEach
-    public void clearAll() throws UnauthorizedException {
+    public void clearAll() throws UnauthorizedException, DataAccessException {
         clearService.deleteAll();
     }
 

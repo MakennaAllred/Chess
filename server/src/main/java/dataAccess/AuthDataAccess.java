@@ -12,5 +12,5 @@ public interface AuthDataAccess {
 
     void deleteAuthToken(String authToken) throws UnauthorizedException;
 
-    void deleteAllTokens() throws UnauthorizedException;
+    void deleteAllTokens() throws UnauthorizedException, DataAccessException;
 }

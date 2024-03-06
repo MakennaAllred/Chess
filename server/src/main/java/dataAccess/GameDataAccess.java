@@ -12,7 +12,7 @@ public interface GameDataAccess {
 
 
     int createGame(String gameName) throws DataAccessException;
-    GameData getGame(int gameID) throws BadRequestException;
+    GameData getGame(int gameID) throws BadRequestException, DataAccessException;
 
 //    void updateGame(int gameID) throws DataAccessException;
 
@@ -20,6 +20,6 @@ public interface GameDataAccess {
 
     void updateGame(int gameID, String username, String color) throws DataAccessException, BadRequestException, AlreadyTakenException;
 
-    void deleteAllGames() throws UnauthorizedException;
+    void deleteAllGames() throws UnauthorizedException, DataAccessException;
 
 }
