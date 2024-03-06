@@ -15,7 +15,6 @@ public class SQLUserDao implements UserDataAccess{
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         String hashedPass = encoder.encode(userdata.password());
         String sql = "INSERT INTO users (username, password, email) values (?,?,?)";
-        //load user, hashedpass, and email into db
         try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
             stmt.setString(1, userdata.username());
             stmt.setString(2, hashedPass);
@@ -24,21 +23,17 @@ public class SQLUserDao implements UserDataAccess{
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
+        return userdata.username();
     }
 
 
-        public UserData getUser(String username) throws DataAccessException {
-            // for login //read previously hashed pass from db
+        public String getUser(String username) throws DataAccessException {
             String statement = "SELECT FROM users WHERE username = ?";
-//            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-//            return encoder.matches(unhashedPassword, hashedPass);
-//            return users.get(username);
             try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(statement)) {
-                //fix ?
                 stmt.setString(1,username);
                 ResultSet rs = stmt.executeQuery();
                 if(rs.next()){
-                    String uname = rs.getString(1);
+                   return rs.getString(1);
                 }
                 else {
                     return null;
@@ -46,15 +41,41 @@ public class SQLUserDao implements UserDataAccess{
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-            return null;
+
         }
 
-    public void deleteAllUsers() throws UnauthorizedException {
+    public void deleteAllUsers() throws UnauthorizedException, DataAccessException {
         String statement = "DELETE FROM users";
+        try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(statement)) {
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+
     }
 
     public UserData checkUsers(UserData user) throws DataAccessException, UnauthorizedException {
-        return null;
+        String statement = "SELECT FROM users WHERE username = ?";
+        String pass = null;
+        try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(statement)) {
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()){
+                String name = rs.getString(1);
+                pass = rs.getString(2);
+                String email = rs.getString(3);
+            }
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            boolean match =  encoder.matches(user.password(), pass);
+            if(match){
+                return user;
+            }
+            else{
+                throw new UnauthorizedException("unauthorized");
+            }
+
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+            }
         }
 
 }

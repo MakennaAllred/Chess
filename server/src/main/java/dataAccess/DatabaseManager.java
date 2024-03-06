@@ -3,6 +3,7 @@ package dataAccess;
 import dataAccess.customExceptions.DataAccessException;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Properties;
 
 public class DatabaseManager {
@@ -48,7 +49,7 @@ public class DatabaseManager {
         }
     }
 
-    //create tables
+
 
     /**
      * Create a connection to the database and sets the catalog based upon the
@@ -71,4 +72,35 @@ public class DatabaseManager {
             throw new DataAccessException(e.getMessage());
         }
     }
-}
+
+    //create tables
+    public static void createTables() throws DataAccessException {
+        ArrayList<String> statements = new ArrayList<>();
+        String sql = "CREATE TABLE IF NOT EXISTS users (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY," +
+                "username VARCHAR(255) NOT NULL" +
+                "password VARCHAR(255) NOT NULL" +
+                "email VARCHAR(255) NOT NULL )";
+        statements.add(sql);
+        String sql1 = "CREATE TABLE IF NOT EXISTS games(" +
+                "gameID INT  AUTO_INCREMENT PRIMARY KEY," +
+                "whiteUsername VARCHAR(255)" +
+                "blackUsername VARCHAR(255)" +
+                "gameName VARCHAR(255) NOT NULL" +
+                "game chess game NOT NULL )";
+        statements.add(sql1);
+        String sql2 = "CREATE TABLE IF NOT EXISTS auths(" +
+                "id INT AUTO_INCREMENT PRIMARY KEY" +
+                "authToken VARCHAR(255) NOT NULL" +
+                "username VARCHAR(255) NOT NULL )";
+        statements.add(sql2);
+        for (var s : statements) {
+            try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new DataAccessException(e.getMessage());
+            }
+            System.out.println("Table Created");
+        }
+    }
+    }

@@ -18,8 +18,9 @@ public class MemoryUserDao implements UserDataAccess {
         return userdata.username();
     }
 
-    public UserData getUser(String username) throws DataAccessException{
-        return users.get(username);
+    public String getUser(String username) throws DataAccessException{
+        UserData u = users.get(username);
+        return u.username();
     }
 
 

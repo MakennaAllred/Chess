@@ -1,6 +1,7 @@
 package service;
 
 import dataAccess.*;
+import dataAccess.customExceptions.DataAccessException;
 import dataAccess.customExceptions.UnauthorizedException;
 
 public class ClearService {
@@ -12,7 +13,7 @@ public class ClearService {
     public ClearService(AuthDataAccess authDao, UserDataAccess userDao, GameDataAccess gameDao){this.authDao = authDao; this.userDao = userDao; this.gameDao = gameDao;}
 
 
-    public void deleteAll() throws UnauthorizedException {
+    public void deleteAll() throws UnauthorizedException, DataAccessException {
         authDao.deleteAllTokens();
         userDao.deleteAllUsers();
         gameDao.deleteAllGames();

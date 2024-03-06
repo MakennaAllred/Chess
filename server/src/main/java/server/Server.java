@@ -24,7 +24,7 @@ public class Server {
     public Server() {
         AuthDataAccess authDao = new MemoryAuthDao();
         GameDataAccess gameDao = new MemoryGameDao();
-        UserDataAccess userDao = new MemoryUserDao();
+        UserDataAccess userDao = new SQLUserDao();
         gameService = new GameService(gameDao,authDao);
         userService = new UserService(userDao,authDao);
         clearService = new ClearService(authDao, userDao, gameDao);
@@ -33,9 +33,9 @@ public class Server {
 
     public int run(int desiredPort)  {
         Spark.port(desiredPort);
-        //create db, & tables
         try {
             DatabaseManager.createDatabase();
+            DatabaseManager.createTables();
         }catch(DataAccessException e){
             return -1;
         }
@@ -75,7 +75,7 @@ public class Server {
             return "{}";
         }
 
-        catch (UnauthorizedException e) {
+        catch (UnauthorizedException | DataAccessException e) {
             res.status(401);
             return new  Gson().toJson(new ErrorMessage(e.getMessage()));
         }
