@@ -72,7 +72,7 @@ public class SQLUserDao implements UserDataAccess{
                     return new UserData(name,pass, email);
                 }
                 else{
-                    throw new UnauthorizedException("unauthorized");
+                    throw new UnauthorizedException("Error: Passwords don't match");
                 }
             }
 

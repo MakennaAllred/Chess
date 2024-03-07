@@ -22,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class UnitTests {
     UserData user = new UserData("user","pass","e@mail.com");
-    AuthDataAccess authDao = new MemoryAuthDao();
-    GameDataAccess gameDao = new MemoryGameDao();
-    UserDataAccess userDao = new MemoryUserDao();
+    AuthDataAccess authDao = new SQLAuthDao();
+    GameDataAccess gameDao = new SQLGameDao();
+    UserDataAccess userDao = new SQLUserDao();
     GameService gameService = new GameService(gameDao, authDao);
     UserService userService = new UserService(userDao,authDao);
     ClearService clearService = new ClearService(authDao, userDao, gameDao);
@@ -124,5 +124,4 @@ public class UnitTests {
 }
 
 
-//list games, what do I put in the equals
-//joinGamePos, logoutPos how do I check
+

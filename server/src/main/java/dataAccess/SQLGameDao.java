@@ -20,7 +20,7 @@ import java.util.Objects;
 public class SQLGameDao implements GameDataAccess{
 
     public int createGame(String gameName)throws DataAccessException {
-        String sql = "INSERT INTO users (gameName, game) values (?,?)";
+        String sql = "INSERT INTO games (gameName, game) values (?,?)";
         try (Connection con = DatabaseManager.getConnection();
                 PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, gameName);
@@ -85,6 +85,7 @@ public class SQLGameDao implements GameDataAccess{
                 try (Connection con = DatabaseManager.getConnection();
                      PreparedStatement stmt = con.prepareStatement(statement)) {
                     stmt.setString(1, username);
+                    stmt.setInt(2, gameID);
                     stmt.executeUpdate();
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
@@ -94,18 +95,19 @@ public class SQLGameDao implements GameDataAccess{
                 throw new AlreadyTakenException("Forbidden");
             }
         }
-        else{
+        else if(Objects.equals(color, "BLACK")){
             if(game.blackUsername() == null) {
                 String statement = "UPDATE games SET blackUsername = ? WHERE gameID = ?";
                 try (Connection con = DatabaseManager.getConnection();
                      PreparedStatement stmt = con.prepareStatement(statement)) {
                     stmt.setString(1, username);
+                    stmt.setInt(2, gameID);
                     stmt.executeUpdate();
                 } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException(e.getMessage());
                 }
             }else{
-                throw new AlreadyTakenException("Forbidden");
+                throw new AlreadyTakenException("Error: Forbidden");
             }
         }
 
