@@ -34,46 +34,56 @@ public class DataBaseUnitTests {
         clearService.deleteAll();
     }
 
-    // User Service tests
+    // UserDAO tests create, check, delete, get*
     @Test
-    public void registerTestPos() throws BadRequestException, DataAccessException, AlreadyTakenException {
+    //get user and create auth
+    public void getUserTestPos() throws BadRequestException, DataAccessException, AlreadyTakenException {
         AuthData auth =  userService.registerUser(user);
         assertEquals(auth.username(), "user");
         assertNotNull(auth.authToken());
     }
     @Test
-    public void registerTestNeg() {
+    public void getUserTestNeg() {
         // empty fields
         assertThrows(BadRequestException.class, () -> userService.registerUser(new UserData(null,"pass","e@mail.com")));
     }
 
     @Test
-    public void loginTestPos() throws UnauthorizedException, DataAccessException, BadRequestException, AlreadyTakenException {
+    public void createUserTestPos() throws BadRequestException, DataAccessException, AlreadyTakenException {
+        AuthData auth =  userService.registerUser(user);
+        assertEquals(auth.username(), "user");
+        assertNotNull(auth.authToken());
+    }
+
+    @Test
+    public void createUserTestNeg() {
+        // empty fields
+        assertThrows(BadRequestException.class, () -> userService.registerUser(new UserData(null,"pass","e@mail.com")));
+    }
+
+    @Test
+    //check user
+    public void checkUserTestPos() throws UnauthorizedException, DataAccessException, BadRequestException, AlreadyTakenException {
         userService.registerUser(user);
         AuthData auth = userService.login(new UserData("user","pass", "e@mail.com"));
         assertNotNull(auth.authToken());
     }
 
     @Test
-    public void loginTestNeg(){
+    public void checkUserTestNeg(){
         //user didn't register
         assertThrows(UnauthorizedException.class, () -> userService.login(user));
     }
 
-    @Test
-    public void logoutTestPos() throws UnauthorizedException, DataAccessException, BadRequestException, AlreadyTakenException {
-        AuthData auth = userService.registerUser(user);
-        assertDoesNotThrow(() -> userService.logout(auth.authToken()));
-    }
 
     @Test
-    public void logoutTestNeg(){
-        // no auth token
-        assertThrows(UnauthorizedException.class,() ->userService.logout(null));
+    public void deleteAllUsers() throws UnauthorizedException, DataAccessException {
+        clearService.deleteAll();
+        assertThrows(UnauthorizedException.class, () -> userService.login(user));
     }
 
 
-    // Game Service Tests
+    // GameDao create*, get, list*, update*, delete all*
     @Test
     public void createGameNeg() throws UnauthorizedException, BadRequestException, DataAccessException {
         //didn't log in
@@ -101,7 +111,7 @@ public class DataBaseUnitTests {
     }
 
     @Test
-    public void joinGamePos() throws BadRequestException, DataAccessException, AlreadyTakenException, UnauthorizedException {
+    public void updateGamePos() throws BadRequestException, DataAccessException, AlreadyTakenException, UnauthorizedException {
         userService.registerUser(user);
         AuthData auth = userService.login(user);
         int gameID = gameService.createGame(auth.authToken(),new GameData(1,null,null, "fakeGame", new ChessGame()));
@@ -110,16 +120,75 @@ public class DataBaseUnitTests {
     }
 
     @Test
-    public void joinGameNeg() throws UnauthorizedException, BadRequestException, DataAccessException, AlreadyTakenException {
+    public void updateGameNeg() throws UnauthorizedException, BadRequestException, DataAccessException, AlreadyTakenException {
+        userService.registerUser(user);
+        AuthData auth = userService.login(user);
+        int gameID = gameService.createGame(auth.authToken(),new GameData(1,null,null, "fakeGame", new ChessGame()));
+        assertThrows(BadRequestException.class, () ->gameService.joinGame(auth.authToken(), new JoinGameReq("WHITE", 0)));
+    }
+
+    @Test
+    public void getGamePos() throws BadRequestException, DataAccessException, AlreadyTakenException, UnauthorizedException {
+        userService.registerUser(user);
+        AuthData auth = userService.login(user);
+        int gameID = gameService.createGame(auth.authToken(),new GameData(1,null,null, "fakeGame", new ChessGame()));
+        gameService.joinGame(auth.authToken(),new JoinGameReq("WHITE", 1));
+
+    }
+
+    @Test
+    public void getGameNeg() throws UnauthorizedException, BadRequestException, DataAccessException, AlreadyTakenException {
         userService.registerUser(user);
         AuthData auth = userService.login(user);
         int gameID = gameService.createGame(auth.authToken(),new GameData(1,null,null, "fakeGame", new ChessGame()));
         assertThrows(BadRequestException.class, () ->gameService.joinGame(auth.authToken(), new JoinGameReq("WHITE", 0)));
     }
     @Test
-    public void clearAllTest() throws UnauthorizedException, DataAccessException {
+    public void deleteAllGamesTest() throws UnauthorizedException, DataAccessException {
         clearService.deleteAll();
         assertEquals(0, gameDao.listGames().size());
+    }
+
+    //Auth Dao Tests create*, get*, delete*, deleteall*
+    @Test
+    public void deleteAuthTestPos() throws UnauthorizedException, DataAccessException, BadRequestException, AlreadyTakenException {
+        AuthData auth = userService.registerUser(user);
+        assertDoesNotThrow(() -> userService.logout(auth.authToken()));
+    }
+
+    @Test
+    public void deleteAuthTestNeg(){
+        // no auth token
+        assertThrows(UnauthorizedException.class,() ->userService.logout(null));
+    }
+    @Test
+    public void deleteAllTest() throws UnauthorizedException, DataAccessException {
+        clearService.deleteAll();
+        assertThrows(UnauthorizedException.class, () ->userService.login(user));
+
+    }
+    @Test
+    public void getAuthPos() throws BadRequestException, DataAccessException, AlreadyTakenException, UnauthorizedException {
+        AuthData auth = userService.registerUser(user);
+        int gameID = gameService.createGame(auth.authToken(),new GameData(1,null,null, "fakeGame", new ChessGame()));
+        Collection<GameData> games =  gameService.listGames(auth.authToken());
+        assertEquals(1,games.size());
+    }
+    @Test
+    public void getAuthNeg(){
+        assertThrows(UnauthorizedException.class, () -> gameService.listGames("1234"));
+    }
+
+    @Test
+    //get user and create auth
+    public void createAuthTestPos() throws BadRequestException, DataAccessException, AlreadyTakenException {
+        AuthData auth =  userService.registerUser(user);
+        assertNotNull(auth.authToken());
+    }
+    @Test
+    public void createAuthTestNeg() {
+        // empty fields
+        assertThrows(BadRequestException.class, () -> userService.registerUser(new UserData(null,"pass","e@mail.com")));
     }
 }
 
