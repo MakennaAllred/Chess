@@ -1,4 +1,4 @@
-package serviceTests;
+package dataAccessTests;
 
 import chess.ChessGame;
 import dataAccess.*;
@@ -20,22 +20,22 @@ import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UnitTests {
+public class DataBaseUnitTests {
     UserData user = new UserData("user","pass","e@mail.com");
-    AuthDataAccess authDao = new MemoryAuthDao();
-    GameDataAccess gameDao = new MemoryGameDao();
-    UserDataAccess userDao = new MemoryUserDao();
+    AuthDataAccess authDao = new SQLAuthDao();
+    GameDataAccess gameDao = new SQLGameDao();
+    UserDataAccess userDao = new SQLUserDao();
     GameService gameService = new GameService(gameDao, authDao);
     UserService userService = new UserService(userDao,authDao);
     ClearService clearService = new ClearService(authDao, userDao, gameDao);
-//Clear test
+    //Clear test
     @BeforeEach
     public void clearAll() throws UnauthorizedException, DataAccessException {
         clearService.deleteAll();
     }
 
-// User Service tests
-@Test
+    // User Service tests
+    @Test
     public void registerTestPos() throws BadRequestException, DataAccessException, AlreadyTakenException {
         AuthData auth =  userService.registerUser(user);
         assertEquals(auth.username(), "user");
