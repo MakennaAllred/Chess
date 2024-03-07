@@ -37,6 +37,7 @@ public class Server {
             DatabaseManager.createDatabase();
             DatabaseManager.createTables();
         }catch(DataAccessException e){
+            e.printStackTrace();
             return -1;
         }
 

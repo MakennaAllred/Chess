@@ -9,6 +9,7 @@ import dataAccess.customExceptions.DataAccessException;
 import dataAccess.customExceptions.UnauthorizedException;
 import model.GameData;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,7 +21,8 @@ public class SQLGameDao implements GameDataAccess{
 
     public int createGame(String gameName)throws DataAccessException {
         String sql = "INSERT INTO users (gameName, game) values (?,?)";
-        try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
+        try (Connection con = DatabaseManager.getConnection();
+                PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, gameName);
             stmt.setString(2, new Gson().toJson(new ChessGame()));
             stmt.executeUpdate();
@@ -34,7 +36,8 @@ public class SQLGameDao implements GameDataAccess{
 
     public GameData getGame(int gameID) throws BadRequestException, DataAccessException {
         String statement = "SELECT * FROM games WHERE gameId = ?";
-        try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(statement)) {
+        try (Connection con = DatabaseManager.getConnection();
+                PreparedStatement stmt = con.prepareStatement(statement)) {
             stmt.setInt(1, gameID);
             ResultSet rs = stmt.executeQuery();
             if(rs.next()){
@@ -56,7 +59,8 @@ public class SQLGameDao implements GameDataAccess{
     public Collection<GameData> listGames() throws DataAccessException {
         var allGames = new ArrayList<GameData>();
         String statement = "SELECT * FROM games";
-        try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(statement)) {
+        try (Connection con = DatabaseManager.getConnection();
+                PreparedStatement stmt = con.prepareStatement(statement)) {
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
                 int gameId = rs.getInt(1);
@@ -76,7 +80,8 @@ public class SQLGameDao implements GameDataAccess{
     public void updateGame(int gameID, String username, String color) throws DataAccessException, BadRequestException, AlreadyTakenException {
         if(Objects.equals(color, "WHITE")) {
             String statement = "UPDATE games SET whiteUsername = ? WHERE gameID = ?";
-            try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(statement)) {
+            try (Connection con = DatabaseManager.getConnection();
+                    PreparedStatement stmt = con.prepareStatement(statement)) {
                 stmt.setString(1, username);
                 stmt.executeUpdate();
             } catch (SQLException e) {
@@ -85,7 +90,8 @@ public class SQLGameDao implements GameDataAccess{
         }
         else{
             String statement = "UPDATE games SET blackUsername = ? WHERE gameID = ?";
-            try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(statement)) {
+            try (Connection con = DatabaseManager.getConnection();
+                 PreparedStatement stmt = con.prepareStatement(statement)) {
                 stmt.setString(1, username);
                 stmt.executeUpdate();
             } catch (SQLException e) {
@@ -97,10 +103,12 @@ public class SQLGameDao implements GameDataAccess{
 
     public void deleteAllGames() throws UnauthorizedException, DataAccessException {
         String statement = "DELETE FROM games";
-        try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(statement)) {
+
+        try (Connection con = DatabaseManager.getConnection();
+                PreparedStatement stmt = con.prepareStatement(statement)) {
             stmt.executeUpdate();
             statement = "ALTER TABLE games AUTO_INCREMENT = 1";
-            try (PreparedStatement stmt1 = DatabaseManager.getConnection().prepareStatement(statement)) {
+            try (PreparedStatement stmt1 = con.prepareStatement(statement)) {
                 stmt1.executeUpdate();}
         } catch (SQLException | DataAccessException e) {
             throw new DataAccessException(e.getMessage());
