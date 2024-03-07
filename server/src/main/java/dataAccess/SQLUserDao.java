@@ -57,7 +57,7 @@ public class SQLUserDao implements UserDataAccess{
     }
 
     public UserData checkUsers(UserData user) throws DataAccessException, UnauthorizedException {
-        String statement = "SELECT FROM users WHERE username = ?";
+        String statement = "SELECT * FROM users WHERE username = ?";
         try (Connection con = DatabaseManager.getConnection();
                 PreparedStatement stmt = con.prepareStatement(statement)) {
             stmt.setString(1,user.username());

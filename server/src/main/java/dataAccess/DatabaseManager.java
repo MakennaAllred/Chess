@@ -80,8 +80,7 @@ public class DatabaseManager {
     public static void createTables() throws DataAccessException {
         ArrayList<String> statements = new ArrayList<>();
         String sql = "CREATE TABLE IF NOT EXISTS users (" +
-                "id INT AUTO_INCREMENT PRIMARY KEY," +
-                "username VARCHAR(255) NOT NULL," +
+                "username VARCHAR(255) NOT NULL PRIMARY KEY," +
                 "password VARCHAR(255) NOT NULL," +
                 "email VARCHAR(255) NOT NULL )";
         statements.add(sql);
@@ -93,8 +92,7 @@ public class DatabaseManager {
                 "game TEXT NOT NULL )";
         statements.add(sql1);
         String sql2 = "CREATE TABLE IF NOT EXISTS auths(" +
-                "id INT AUTO_INCREMENT PRIMARY KEY," +
-                "authToken VARCHAR(255) NOT NULL," +
+                "authToken VARCHAR(255) NOT NULL PRIMARY KEY," +
                 "username VARCHAR(255) NOT NULL )";
         statements.add(sql2);
         for (var s : statements) {

@@ -13,7 +13,7 @@ import java.util.UUID;
 public class SQLAuthDao implements AuthDataAccess{
     public AuthData createAuth(String username) throws DataAccessException {
         String token = UUID.randomUUID().toString();
-        String sql = "INSERT INTO auths (token, username) values (?,?)";
+        String sql = "INSERT INTO auths (authToken, username) values (?,?)";
         try (Connection con = DatabaseManager.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, token);
@@ -41,12 +41,12 @@ public class SQLAuthDao implements AuthDataAccess{
                 return null;
             }
         } catch (SQLException | DataAccessException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
     }
 
     public void deleteAuthToken(String authToken)throws UnauthorizedException {
-        String statement = "DELETE * FROM auths WHERE authToken = ?";
+        String statement = "DELETE FROM auths WHERE authToken = ?";
         try (Connection con = DatabaseManager.getConnection();
                 PreparedStatement stmt = con.prepareStatement(statement)) {
             stmt.setString(1, authToken);

@@ -78,24 +78,34 @@ public class SQLGameDao implements GameDataAccess{
 
 
     public void updateGame(int gameID, String username, String color) throws DataAccessException, BadRequestException, AlreadyTakenException {
+        GameData game = getGame(gameID);
         if(Objects.equals(color, "WHITE")) {
-            String statement = "UPDATE games SET whiteUsername = ? WHERE gameID = ?";
-            try (Connection con = DatabaseManager.getConnection();
-                    PreparedStatement stmt = con.prepareStatement(statement)) {
-                stmt.setString(1, username);
-                stmt.executeUpdate();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+            if(game.whiteUsername() == null) {
+                String statement = "UPDATE games SET whiteUsername = ? WHERE gameID = ?";
+                try (Connection con = DatabaseManager.getConnection();
+                     PreparedStatement stmt = con.prepareStatement(statement)) {
+                    stmt.setString(1, username);
+                    stmt.executeUpdate();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            else{
+                throw new AlreadyTakenException("Forbidden");
             }
         }
         else{
-            String statement = "UPDATE games SET blackUsername = ? WHERE gameID = ?";
-            try (Connection con = DatabaseManager.getConnection();
-                 PreparedStatement stmt = con.prepareStatement(statement)) {
-                stmt.setString(1, username);
-                stmt.executeUpdate();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+            if(game.blackUsername() == null) {
+                String statement = "UPDATE games SET blackUsername = ? WHERE gameID = ?";
+                try (Connection con = DatabaseManager.getConnection();
+                     PreparedStatement stmt = con.prepareStatement(statement)) {
+                    stmt.setString(1, username);
+                    stmt.executeUpdate();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }else{
+                throw new AlreadyTakenException("Forbidden");
             }
         }
 
