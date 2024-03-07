@@ -58,11 +58,14 @@ public class DatabaseManager {
      * The easiest way to do that is with a try-with-resource block.
      * <br/>
      * <code>
-     * try (var conn = DbInfo.getConnection(databaseName)) {
+     try (var conn = DbInfo.getConnection(databaseName)) {
      * // execute SQL statements.
      * }
      * </code>
      */
+
+
+
     static Connection getConnection() throws DataAccessException {
         try {
             var conn = DriverManager.getConnection(connectionUrl, user, password);
@@ -83,7 +86,7 @@ public class DatabaseManager {
                 "email VARCHAR(255) NOT NULL )";
         statements.add(sql);
         String sql1 = "CREATE TABLE IF NOT EXISTS games(" +
-                "gameID INT  AUTO_INCREMENT PRIMARY KEY," +
+                "gameID INT AUTO_INCREMENT PRIMARY KEY," +
                 "whiteUsername VARCHAR(255)" +
                 "blackUsername VARCHAR(255)" +
                 "gameName VARCHAR(255) NOT NULL" +

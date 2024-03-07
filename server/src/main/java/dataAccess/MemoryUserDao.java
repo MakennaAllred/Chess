@@ -20,7 +20,12 @@ public class MemoryUserDao implements UserDataAccess {
 
     public String getUser(String username) throws DataAccessException{
         UserData u = users.get(username);
-        return u.username();
+        if(u != null) {
+            return u.username();
+        }
+        else{
+            return null;
+        }
     }
 
 
