@@ -17,25 +17,48 @@ public class GenerateBoard {
     public static void main (String[] args){
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
-        drawHeaders(out);
+        ChessGame.TeamColor perspective = ChessGame.TeamColor.WHITE;
+        drawHeaders(out,perspective);
         ChessBoard board = new ChessBoard();
         board.resetBoard();
-        drawChessBoard(out, board);
+        drawChessBoard(out, board, perspective);
+        drawHeaders(out,perspective);
+
 
 
     }
 
-    public static void drawHeaders(PrintStream out){
-        setBlack(out);
-        String[] headers = {"a","b","c","d","e","f","g","h"};
-        for(int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; boardCol++){
-            printHeaderText(out, headers[boardCol]);
-            if (boardCol < BOARD_SIZE_IN_SQUARES - 1) {
-                out.print(EMPTY.repeat(LINE_WIDTH_IN_CHARS));
+    public static void drawHeaders(PrintStream out, ChessGame.TeamColor perspective){
+        setGray(out);
+        String[] wHeaders = {"a","b","c","d","e","f","g","h"};
+        String[] bHeaders = {"h","g","f","e","d","c","b","a"};
+        out.print(EMPTY);
+        if(perspective == ChessGame.TeamColor.BLACK) {
+            for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; boardCol++) {
+                printHeaderText(out, bHeaders[boardCol]);
+                if (boardCol < BOARD_SIZE_IN_SQUARES - 1) {
+                    out.print(" \u2003".repeat(LINE_WIDTH_IN_CHARS));
+                }
+                else{
+                    out.print("     ");
+                }
             }
             setBlack(out);
+            out.println();
         }
-        out.println();
+        else{
+            for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; boardCol++) {
+                printHeaderText(out, wHeaders[boardCol]);
+                if (boardCol < BOARD_SIZE_IN_SQUARES - 1) {
+                    out.print(" \u2003".repeat(LINE_WIDTH_IN_CHARS));
+                }
+                else{
+                    out.print("     ");
+                }
+            }
+            setBlack(out);
+            out.println();
+        }
     }
 
     public static void printHeaderText(PrintStream out, String s){
@@ -52,10 +75,19 @@ public class GenerateBoard {
         out.print(SET_BG_COLOR_WHITE);
         out.print(SET_TEXT_COLOR_BLACK);
     }
+    private static void setGray(PrintStream out) {
+        out.print(SET_BG_COLOR_DARK_GREY);
+        out.print(SET_TEXT_COLOR_LIGHT_GREY);
+    }
 
-    public static void drawChessBoard(PrintStream out, ChessBoard board){
+    public static void drawChessBoard(PrintStream out, ChessBoard board, ChessGame.TeamColor perspective){
         for (int squareRow = 1; squareRow < 9; ++squareRow){
-            boolean isWhiteSquare = (squareRow % 2 == 0);
+            //black: outer: ascending inner: descending
+            //white: outer: des
+            //white: view = 9-squarerow, black = squarerow;
+            boolean isWhiteSquare = (squareRow % 2 == 1);
+            setGray(out);
+            out.print(" " + squareRow + " ");
             for(int boardCol = 1; boardCol < 9; ++boardCol){
                 if(isWhiteSquare) {
                     setWhite(out);
@@ -68,7 +100,9 @@ public class GenerateBoard {
                 setBlack(out);
                 isWhiteSquare = !isWhiteSquare;
             }
-
+            setGray(out);
+            out.print(" " + squareRow + " ");
+            setBlack(out);
             out.println();
             setBlack(out);
         }
