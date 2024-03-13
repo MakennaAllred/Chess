@@ -80,23 +80,50 @@ public class GenerateBoard {
         out.print(SET_TEXT_COLOR_LIGHT_GREY);
     }
 
-    public static void drawChessBoard(PrintStream out, ChessBoard board, ChessGame.TeamColor perspective){
-        for (int squareRow = 1; squareRow < 9; ++squareRow){
+    public static void drawChessBoard(PrintStream out, ChessBoard board, ChessGame.TeamColor perspective) {
+        if (perspective == ChessGame.TeamColor.BLACK) {
+            for (int squareRow = 1; squareRow < 9; ++squareRow) {
+                int view = (perspective == ChessGame.TeamColor.BLACK) ? squareRow : 9 - squareRow;
+                //black: outer: ascending inner: descending
+                //white: outer: des
+                //white: view = 9-squarerow, black = squarerow;
+                boolean isWhiteSquare = (squareRow % 2 == 1);
+                setGray(out);
+                out.print(" " + squareRow + " ");
+                for (int boardCol = 1; boardCol < 9; ++boardCol) {
+                    if (isWhiteSquare) {
+                        setWhite(out);
+                    } else {
+                        setBlack(out);
+                    }
+                    ChessPiece current = board.getPiece(new ChessPosition(squareRow, boardCol));
+                    printPiece(out, current);
+                    setBlack(out);
+                    isWhiteSquare = !isWhiteSquare;
+                }
+                setGray(out);
+                out.print(" " + squareRow + " ");
+                setBlack(out);
+                out.println();
+                setBlack(out);
+            }
+
+        }else {
+            for (int squareRow = 8; squareRow > 0; --squareRow) {
             //black: outer: ascending inner: descending
             //white: outer: des
             //white: view = 9-squarerow, black = squarerow;
             boolean isWhiteSquare = (squareRow % 2 == 1);
             setGray(out);
             out.print(" " + squareRow + " ");
-            for(int boardCol = 1; boardCol < 9; ++boardCol){
-                if(isWhiteSquare) {
+            for (int boardCol = 1; boardCol < 9; ++boardCol) {
+                if (isWhiteSquare) {
                     setWhite(out);
-                }
-                else{
+                } else {
                     setBlack(out);
                 }
-                ChessPiece current = board.getPiece(new ChessPosition(squareRow,boardCol));
-                printPiece(out,current);
+                ChessPiece current = board.getPiece(new ChessPosition(squareRow, boardCol));
+                printPiece(out, current);
                 setBlack(out);
                 isWhiteSquare = !isWhiteSquare;
             }
@@ -105,8 +132,10 @@ public class GenerateBoard {
             setBlack(out);
             out.println();
             setBlack(out);
+            }
         }
     }
+
     public static void printPiece(PrintStream out, ChessPiece piece){
         if(piece == null){
             out.print(EMPTY);
@@ -162,7 +191,7 @@ public class GenerateBoard {
                 }
                 if (type == ChessPiece.PieceType.PAWN) {
                     out.print(SET_TEXT_COLOR_BLUE);
-                    out.print(WHITE_PAWN);
+                    out.print(BLACK_PAWN);
                 }
             }
         }
