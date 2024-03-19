@@ -17,7 +17,7 @@ public class GenerateBoard {
     public static void main (String[] args){
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
-        ChessGame.TeamColor perspective = ChessGame.TeamColor.WHITE;
+        ChessGame.TeamColor perspective = ChessGame.TeamColor.BLACK;
         drawHeaders(out,perspective);
         ChessBoard board = new ChessBoard();
         board.resetBoard();
