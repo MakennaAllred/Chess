@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dataAccess.CreateGameRes;
 import dataAccess.JoinGameReq;
 import dataAccess.ListGamesRes;
+import dataAccess.customExceptions.DataAccessException;
 import model.AuthData;
 import model.UserData;
 
@@ -16,8 +17,9 @@ import java.net.*;
 public class ServerFacade {
     private final String serverURL;
 
-    public ServerFacade(String url){serverURL = url;}
-    public AuthData login(UserData user){
+    public ServerFacade(){
+        this.serverURL = "http://localhost:8080";}
+    public AuthData login(UserData user) {
         String path = "/session";
         return this.makeRequest("POST",path, user, AuthData.class);
     }
@@ -30,13 +32,13 @@ public class ServerFacade {
         this.makeRequest("DELETE", path, authToken, null);
     }
 
-    public Object listGames(AuthData authToken){
+    public ListGamesRes listGames(AuthData authToken){
         String path = "/game";
         return this.makeRequest("GET", path, authToken, ListGamesRes.class);
     }
 
-    //creategameres
-    public Object createGame(AuthData authToken){
+
+    public CreateGameRes createGame(AuthData authToken){
         String path = "/game";
         return this.makeRequest("POST", path, authToken, CreateGameRes.class);
     }
@@ -97,7 +99,7 @@ public class ServerFacade {
 
 
     private boolean isSuccessful(int status) {
-        return status / 100 == 2;
+        return status  == 200;
     }
 
 }
