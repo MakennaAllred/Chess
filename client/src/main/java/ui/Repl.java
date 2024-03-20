@@ -7,7 +7,7 @@ public class Repl {
 
     public Repl(String serverURL){}
     public void run(){
-        System.out.println("Welcome to Chess, sign in to start.");
+        System.out.println("Welcome to Chess, login to start.");
         System.out.print(help());
 
         Scanner scanner = new Scanner(System.in);
@@ -36,19 +36,19 @@ public class Repl {
         System.out.println();
     }
 
-    private void printPrompt(){System.out.print("\n");}
+    private void printPrompt(){System.out.print("\n" + ">>>");}
 
     public String help(){
         if(state == State.SIGNEDOUT){
             return """
-                    - Register <username, password, email>
-                    - Login <username, password>
+                    - Register <username password email>
+                    - Login <username password>
                     - Quit
                     """;
         }
         return """
                 - Create Game <gameName>
-                - Join Game <PlayerColor, gameID>
+                - Join Game <PlayerColor gameID>
                 - List Games
                 - Logout
                 - Clear All
