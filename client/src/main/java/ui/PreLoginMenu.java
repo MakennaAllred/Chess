@@ -7,7 +7,7 @@ import model.UserData;
 import java.util.Arrays;
 
 public class PreLoginMenu {
-    private static AuthData auth;
+
 
     public static String eval(String input) {
         try {
@@ -28,17 +28,17 @@ public class PreLoginMenu {
     public static String help() {
         if (Repl.state == State.SIGNEDOUT) {
             return """
-                    - Register <username, password, email>
-                    - Login <username, password>
+                    - Register <username password email>
+                    - Login <username password>
                     - Quit
                     """;
         }
         return """
-                - Create Game <gameName>
-                - Join Game <PlayerColor, gameID>
-                - List Games
+                - Create <gameName>
+                - Join <PlayerColor gameID>
+                - List
                 - Logout
-                - Clear All
+                - Clear
                 - Quit
                 """;
     }
@@ -50,9 +50,10 @@ public class PreLoginMenu {
                 String password = params[1];
                 UserData user = new UserData(username, password, null);
                 try {
-                    auth = new ServerFacade().login(user);
+                    Repl.auth = new ServerFacade().login(user);
                     Repl.state = State.SIGNEDIN;
-                    return auth.authToken();
+                    System.out.print(help());
+                    return Repl.auth.authToken();
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
@@ -71,9 +72,10 @@ public class PreLoginMenu {
                 String email = params[2];
                 UserData user = new UserData(username, password, email);
                 try {
-                    auth = new ServerFacade().register(user);
+                    Repl.auth = new ServerFacade().register(user);
                     Repl.state = State.SIGNEDIN;
-                    return auth.authToken();
+                    System.out.print(help());
+                    return Repl.auth.authToken();
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }

@@ -6,6 +6,7 @@ import dataAccess.JoinGameReq;
 import dataAccess.ListGamesRes;
 import dataAccess.customExceptions.DataAccessException;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 
 import java.io.IOException;
@@ -27,18 +28,18 @@ public class ServerFacade {
         String path = "/user";
         return this.makeRequest("POST", path, user, AuthData.class);
     }
-    public void logout(AuthData authToken){
+    public void logout(String authToken){
         String path = "/session";
         this.makeRequest("DELETE", path, authToken, null);
     }
 
-    public ListGamesRes listGames(AuthData authToken){
+    public ListGamesRes listGames(String authToken){
         String path = "/game";
         return this.makeRequest("GET", path, authToken, ListGamesRes.class);
     }
 
 
-    public CreateGameRes createGame(AuthData authToken){
+    public CreateGameRes createGame(String authToken, GameData gameBody){
         String path = "/game";
         return this.makeRequest("POST", path, authToken, CreateGameRes.class);
     }
@@ -47,7 +48,7 @@ public class ServerFacade {
         String path = "/game";
         this.makeRequest("PUT", path, JoinGameReq.class, null);
     }
-    public void deleteAll(AuthData auth){
+    public void deleteAll(String auth){
         String path = "/db";
         this.makeRequest("DELETE", path, auth, null);
     }

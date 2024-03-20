@@ -1,9 +1,12 @@
 package ui;
 
+import model.AuthData;
+
 import java.util.Scanner;
 
 public class Repl {
     public static State state = State.SIGNEDOUT;
+    public static AuthData auth;
 
     public Repl(String serverURL){}
     public void run(){
@@ -11,21 +14,18 @@ public class Repl {
         System.out.print(help());
 
         Scanner scanner = new Scanner(System.in);
-        String result = "";
-        while(!result.equals("quit")){
+        Object res = "";
+        while(!res.equals("quit")){
             printPrompt();
             String line = scanner.nextLine();
 
             try{
                 if(state == State.SIGNEDOUT){
-                    result =  PreLoginMenu.eval(line);
-                    System.out.print(result);
+                    res = PreLoginMenu.eval(line);
                 } else if (state == State.SIGNEDIN) {
-                    result =  PostLoginMenu.eval(line);
-                    System.out.print(result);
+                    res = PostLoginMenu.eval(line);
                 }else{
-                    result =  InGame.eval("phase 6");
-                    System.out.print(result);
+                    res = InGame.eval("phase 6");
                 }
 
             }
@@ -47,11 +47,11 @@ public class Repl {
                     """;
         }
         return """
-                - Create Game <gameName>
-                - Join Game <PlayerColor gameID>
-                - List Games
+                - Create <gameName>
+                - Join <PlayerColor gameID>
+                - List
                 - Logout
-                - Clear All
+                - Clear
                 - Quit
                 """;
     }
