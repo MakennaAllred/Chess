@@ -7,6 +7,7 @@ import model.UserData;
 import java.util.Arrays;
 
 public class PreLoginMenu {
+    private static AuthData auth;
 
     public static String eval(String input) {
         try {
@@ -49,7 +50,7 @@ public class PreLoginMenu {
                 String password = params[1];
                 UserData user = new UserData(username, password, null);
                 try {
-                    AuthData auth = new ServerFacade().login(user);
+                    auth = new ServerFacade().login(user);
                     Repl.state = State.SIGNEDIN;
                     return auth.authToken();
                 } catch (Exception e) {
@@ -59,7 +60,7 @@ public class PreLoginMenu {
         } catch (Exception e) {
             return e.getMessage();
         }
-        return "Error";
+        return "Error:logging in";
     }
 
     public static String register(String... params) {
@@ -70,7 +71,7 @@ public class PreLoginMenu {
                 String email = params[2];
                 UserData user = new UserData(username, password, email);
                 try {
-                    AuthData auth = new ServerFacade().register(user);
+                    auth = new ServerFacade().register(user);
                     Repl.state = State.SIGNEDIN;
                     return auth.authToken();
                 } catch (Exception e) {

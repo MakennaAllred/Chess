@@ -1,5 +1,6 @@
 package ui;
 
+import dataAccess.JoinGameReq;
 import dataAccess.customExceptions.DataAccessException;
 import model.AuthData;
 import model.UserData;
@@ -7,6 +8,7 @@ import model.UserData;
 import java.util.Arrays;
 
 public class PostLoginMenu {
+    private static AuthData auth;
 
     public static String eval(String input){
         try{
@@ -47,12 +49,13 @@ public class PostLoginMenu {
     public static String joinGame(String...params){
         try {
             if (params.length >= 1) {
-                String playerColor = params[1];
-                String gameID = params[2];
+                String playerColor = params[0];
+                int gameID = Integer.parseInt(params[1]);
+                JoinGameReq body = new JoinGameReq(playerColor,gameID);
                 try {
-//                    AuthData auth = new ServerFacade().joinGame();
+                    new ServerFacade().joinGame(auth.authToken(), body);
                     Repl.state = State.SIGNEDIN;
-//                    return auth.authToken();
+                    return auth.authToken();
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
@@ -60,11 +63,17 @@ public class PostLoginMenu {
         } catch (Exception e) {
             return e.getMessage();
         }
-        return "Error";
+        return null;
     }
 
 
     public static String createGame(String...params){
+        try{
+            if(params.length>=1){
+                String gameName = params[0];
+
+            }
+        }
         return "null";
     }
     public static String listGames(String...params){

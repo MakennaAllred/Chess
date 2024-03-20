@@ -43,7 +43,7 @@ public class ServerFacade {
         return this.makeRequest("POST", path, authToken, CreateGameRes.class);
     }
 
-    public void joinGame(AuthData auth){
+    public void joinGame(String authToken, JoinGameReq body){
         String path = "/game";
         this.makeRequest("PUT", path, JoinGameReq.class, null);
     }
