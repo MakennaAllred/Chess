@@ -80,7 +80,7 @@ public class ServerFacade {
         }
     }
 
-    public void throwIfNotSuccessful(HttpURLConnection http) throws IOException{
+    private void throwIfNotSuccessful(HttpURLConnection http) throws IOException{
         var status = http.getResponseCode();
         if(!isSuccessful(status)){
             throw new RuntimeException("error:" + status);
