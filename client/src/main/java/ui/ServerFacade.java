@@ -18,8 +18,8 @@ import java.net.*;
 public class ServerFacade {
     private final String serverURL;
 
-    public ServerFacade(){
-        this.serverURL = "http://localhost:8080";}
+    public ServerFacade(int port){
+        this.serverURL = "http://localhost:" + port;}
     public AuthData login(UserData user) {
         String path = "/session";
         return this.makeRequest("POST",path, null, user, AuthData.class);

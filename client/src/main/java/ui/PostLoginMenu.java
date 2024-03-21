@@ -11,8 +11,9 @@ import model.UserData;
 import java.util.Arrays;
 
 public class PostLoginMenu {
-
-    public static Object eval(String input){
+public static int port;
+    public static Object eval(int port, String input){
+        PostLoginMenu.port = port;
         try{
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -55,7 +56,7 @@ public class PostLoginMenu {
                 int gameID = Integer.parseInt(params[1]);
                 JoinGameReq body = new JoinGameReq(playerColor,gameID);
                 try {
-                    new ServerFacade().joinGame(Repl.auth.authToken(), body);
+                    new ServerFacade(PostLoginMenu.port).joinGame(Repl.auth.authToken(), body);
                     System.out.println("Joined game");
                     System.out.print(help());
                 } catch (Exception e) {
@@ -78,7 +79,7 @@ public class PostLoginMenu {
                 String gameName = params[0];
                 GameData gameBody = new GameData(0,null,null,gameName,null);
                 try{
-                    CreateGameRes game = new ServerFacade().createGame(Repl.auth.authToken(),gameBody);
+                    CreateGameRes game = new ServerFacade(PostLoginMenu.port).createGame(Repl.auth.authToken(),gameBody);
                     System.out.print("Game" + game.gameID() + "created");
                     return game.gameID();
                 }catch (Exception e){
@@ -94,7 +95,7 @@ public class PostLoginMenu {
 
     public static ListGamesRes listGames(String...params){
         try{
-            ListGamesRes games = new ServerFacade().listGames(Repl.auth.authToken());
+            ListGamesRes games = new ServerFacade(PostLoginMenu.port).listGames(Repl.auth.authToken());
             //for each games.games(), don't print the board
             for(GameData game :games.games()) {
                 System.out.print("gameID: " + game.gameID() + " ");
@@ -113,7 +114,7 @@ public class PostLoginMenu {
 
     public static Void logout(String...params){
         try{
-            new ServerFacade().logout(Repl.auth.authToken());
+            new ServerFacade(PostLoginMenu.port).logout(Repl.auth.authToken());
             Repl.state = State.SIGNEDOUT;
             System.out.println("Logged out successfully");
             System.out.print(help());
@@ -124,7 +125,7 @@ public class PostLoginMenu {
     }
     public static Void clearAll(String...params){
         try{
-            new ServerFacade().deleteAll(Repl.auth.authToken());
+            new ServerFacade(PostLoginMenu.port).deleteAll(Repl.auth.authToken());
             Repl.state = State.SIGNEDOUT;
             System.out.println("Everything cleared");
             System.out.print(help());

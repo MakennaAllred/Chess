@@ -8,8 +8,11 @@ public class Repl {
     public static State state = State.SIGNEDOUT;
     public static AuthData auth;
     public static String username;
+    public static int port;
 
-    public Repl(String serverURL){}
+    public Repl(int serverURL){
+        this.port = serverURL;
+    }
     public void run(){
         System.out.println("Welcome to Chess, login to start.");
         System.out.print(help());
@@ -22,9 +25,9 @@ public class Repl {
 
             try{
                 if(state == State.SIGNEDOUT){
-                    res = PreLoginMenu.eval(line);
+                    res = PreLoginMenu.eval(port, line);
                 } else if (state == State.SIGNEDIN) {
-                    res = PostLoginMenu.eval(line);
+                    res = PostLoginMenu.eval(port, line);
                 }else{
                     res = InGame.eval("phase 6");
                 }
