@@ -22,43 +22,44 @@ public class ServerFacade {
         this.serverURL = "http://localhost:8080";}
     public AuthData login(UserData user) {
         String path = "/session";
-        return this.makeRequest("POST",path, user, AuthData.class);
+        return this.makeRequest("POST",path, null, user, AuthData.class);
     }
     public AuthData register(UserData user){
         String path = "/user";
-        return this.makeRequest("POST", path, user, AuthData.class);
+        return this.makeRequest("POST", path, null, user, AuthData.class);
     }
     public void logout(String authToken){
         String path = "/session";
-        this.makeRequest("DELETE", path, authToken, null);
+        this.makeRequest("DELETE", path, authToken, null,null);
     }
 
     public ListGamesRes listGames(String authToken){
         String path = "/game";
-        return this.makeRequest("GET", path, authToken, ListGamesRes.class);
+        return this.makeRequest("GET", path, authToken, null, ListGamesRes.class);
     }
 
 
     public CreateGameRes createGame(String authToken, GameData gameBody){
         String path = "/game";
-        return this.makeRequest("POST", path, authToken, CreateGameRes.class);
+        return this.makeRequest("POST", path, authToken, gameBody, CreateGameRes.class);
     }
 
     public void joinGame(String authToken, JoinGameReq body){
         String path = "/game";
-        this.makeRequest("PUT", path, JoinGameReq.class, null);
+        this.makeRequest("PUT", path, authToken, body, null);
     }
     public void deleteAll(String auth){
         String path = "/db";
-        this.makeRequest("DELETE", path, auth, null);
+        this.makeRequest("DELETE", path, auth,null, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass){
+    private <T> T makeRequest(String method, String path, String authToken, Object request, Class<T> responseClass){
         try{
             URL url = (new URI(serverURL + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+            http.addRequestProperty("authorization", authToken);
 
             writeBody(request, http);
             http.connect();

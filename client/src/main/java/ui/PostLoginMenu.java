@@ -51,16 +51,19 @@ public class PostLoginMenu {
     public static String joinGame(String...params){
         try {
             if (params.length >= 1) {
-                String playerColor = params[0];
+                String playerColor = params[0].toUpperCase();
                 int gameID = Integer.parseInt(params[1]);
                 JoinGameReq body = new JoinGameReq(playerColor,gameID);
                 try {
                     new ServerFacade().joinGame(Repl.auth.authToken(), body);
-                    Repl.state = State.SIGNEDIN;
-                    return Repl.auth.authToken();
+                    System.out.println("Joined game");
+                    System.out.print(help());
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
+            }
+            else{
+                System.out.print("Error: can't join game");
             }
         } catch (Exception e) {
             return e.getMessage();
@@ -92,7 +95,14 @@ public class PostLoginMenu {
     public static ListGamesRes listGames(String...params){
         try{
             ListGamesRes games = new ServerFacade().listGames(Repl.auth.authToken());
-            System.out.println(games);
+            //for each games.games(), don't print the board
+            for(GameData game :games.games()) {
+                System.out.print("gameID: " + game.gameID() + " ");
+                System.out.print("White Username: " + game.whiteUsername() + " ");
+                System.out.print("Black Username: " + game.blackUsername() + " ");
+                System.out.print("Game name: " + game.gameName());
+                System.out.print("\n");
+            }
             return games;
         }catch(Exception e){
             System.out.println(e.getMessage());
@@ -104,19 +114,23 @@ public class PostLoginMenu {
     public static Void logout(String...params){
         try{
             new ServerFacade().logout(Repl.auth.authToken());
+            Repl.state = State.SIGNEDOUT;
+            System.out.println("Logged out successfully");
+            System.out.print(help());
         }catch(Exception e){
             System.out.println(e.getMessage());
         }
-        System.out.println("Logged out successfully");
         return null;
     }
     public static Void clearAll(String...params){
         try{
             new ServerFacade().deleteAll(Repl.auth.authToken());
+            Repl.state = State.SIGNEDOUT;
+            System.out.println("Everything cleared");
+            System.out.print(help());
         }catch(Exception e){
             System.out.println(e.getMessage());
         }
-        System.out.println("All games cleared");
         return null;
     }
 }

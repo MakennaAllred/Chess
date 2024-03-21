@@ -7,6 +7,7 @@ import java.util.Scanner;
 public class Repl {
     public static State state = State.SIGNEDOUT;
     public static AuthData auth;
+    public static String username;
 
     public Repl(String serverURL){}
     public void run(){
@@ -15,7 +16,7 @@ public class Repl {
 
         Scanner scanner = new Scanner(System.in);
         Object res = "";
-        while(!res.equals("quit")){
+        while(res == null || !res.equals("quit")){
             printPrompt();
             String line = scanner.nextLine();
 
