@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import dataAccess.CreateGameRes;
 import dataAccess.JoinGameReq;
 import dataAccess.ListGamesRes;
@@ -34,12 +35,25 @@ public static int port;
 
     public static String help(){
         if(Repl.state == State.SIGNEDOUT){
+            System.out.println("""
+                    - Register <username password email>
+                    - Login <username password>
+                    - Quit
+                    """);
             return """
                     - Register <username password email>
                     - Login <username password>
                     - Quit
                     """;
         }
+        System.out.println("""
+                - Create <gameName>
+                - Join <PlayerColor gameID>
+                - List
+                - Logout
+                - Clear
+                - Quit
+                """);
         return """
                 - Create <gameName>
                 - Join <PlayerColor gameID>
@@ -57,6 +71,8 @@ public static int port;
                 JoinGameReq body = new JoinGameReq(playerColor,gameID);
                 try {
                     new ServerFacade(PostLoginMenu.port).joinGame(Repl.auth.authToken(), body);
+                    GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE);
+                    GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK);
                     System.out.println("Joined game");
                     System.out.print(help());
                 } catch (Exception e) {

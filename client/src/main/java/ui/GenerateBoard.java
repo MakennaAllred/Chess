@@ -15,17 +15,29 @@ public class GenerateBoard {
     private static final int LINE_WIDTH_IN_CHARS = 1;
 
     public static void main (String[] args){
+        generateBoard(ChessGame.TeamColor.WHITE);
+        generateBoard(ChessGame.TeamColor.BLACK);
+    }
+
+    public static void generateBoard(ChessGame.TeamColor color){
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
-        ChessGame.TeamColor perspective = ChessGame.TeamColor.BLACK;
-        drawHeaders(out,perspective);
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-        drawChessBoard(out, board, perspective);
-        drawHeaders(out,perspective);
-
-
-
+        if(color == ChessGame.TeamColor.WHITE) {
+            ChessGame.TeamColor perspective = ChessGame.TeamColor.WHITE;
+            drawHeaders(out, perspective);
+            ChessBoard board = new ChessBoard();
+            board.resetBoard();
+            drawChessBoard(out, board, perspective);
+            drawHeaders(out, perspective);
+        }
+        else{
+            ChessGame.TeamColor perspective = ChessGame.TeamColor.BLACK;
+            drawHeaders(out,perspective);
+            ChessBoard board = new ChessBoard();
+            board.resetBoard();
+            drawChessBoard(out, board, perspective);
+            drawHeaders(out,perspective);
+        }
     }
 
     public static void drawHeaders(PrintStream out, ChessGame.TeamColor perspective){

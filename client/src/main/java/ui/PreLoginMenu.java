@@ -28,12 +28,25 @@ public static int port;
 
     public static String help() {
         if (Repl.state == State.SIGNEDOUT) {
+            System.out.println("""
+                    - Register <username password email>
+                    - Login <username password>
+                    - Quit
+                    """);
             return """
                     - Register <username password email>
                     - Login <username password>
                     - Quit
                     """;
         }
+        System.out.println("""
+                - Create <gameName>
+                - Join <PlayerColor gameID>
+                - List
+                - Logout
+                - Clear
+                - Quit
+                """);
         return """
                 - Create <gameName>
                 - Join <PlayerColor gameID>
@@ -55,7 +68,7 @@ public static int port;
                         Repl.auth = new ServerFacade(PreLoginMenu.port).login(user);
                         Repl.username = Repl.auth.username();
                         Repl.state = State.SIGNEDIN;
-                        System.out.print(help());
+                        help();
                         return Repl.auth.authToken();
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
@@ -83,7 +96,7 @@ public static int port;
                         Repl.auth = new ServerFacade(PreLoginMenu.port).register(user);
                         Repl.username = Repl.auth.username();
                         Repl.state = State.SIGNEDIN;
-                        System.out.print(help());
+                        help();
                         return Repl.auth.authToken();
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
