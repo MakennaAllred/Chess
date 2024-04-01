@@ -1,6 +1,7 @@
 package server.webSocket;
 
 import org.eclipse.jetty.websocket.api.Session;
+import webSocketMessages.serverMessages.ServerMessage;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class ConnectionsManager {
         authsAndSessions.remove(authToken);
     }
 
-    public void broadcast(String excludeAuthToken, Notification notification) throws IOException {
+    public void broadcast(String excludeAuthToken, ServerMessage notification) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var c : authsAndSessions.values()) {
             if (c.session.isOpen()) {
@@ -36,4 +37,5 @@ public class ConnectionsManager {
         for (var c : removeList) {
             authsAndSessions.remove(c.authToken);
         }
+    }
 }
