@@ -6,6 +6,7 @@ import dataAccess.customExceptions.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import server.webSocket.WebSocketHandler;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -20,6 +21,7 @@ public class Server {
     private final UserService userService;
     private final GameService gameService;
     private final ClearService clearService;
+    private final WebSocketHandler webSocketHandler;
 
     public Server() {
         AuthDataAccess authDao = new SQLAuthDao();
@@ -28,6 +30,7 @@ public class Server {
         gameService = new GameService(gameDao,authDao);
         userService = new UserService(userDao,authDao);
         clearService = new ClearService(authDao, userDao, gameDao);
+        webSocketHandler = new WebSocketHandler();
     }
 
 
@@ -42,6 +45,8 @@ public class Server {
 
         Spark.staticFiles.location("web");
         Spark.init();
+
+        Spark.webSocket("/connect", webSocketHandler);
         // Register your endpoints and handle exceptions here.
         Spark.delete("/db", this::deleteAll);
         Spark.post("/user", this::registerUser);
