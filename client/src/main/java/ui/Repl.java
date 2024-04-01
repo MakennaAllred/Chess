@@ -29,7 +29,7 @@ public class Repl {
                 } else if (state == State.SIGNEDIN) {
                     res = PostLoginMenu.eval(port, line);
                 }else{
-                    res = InGame.eval("phase 6");
+                    res = InGame.eval(port,line);
                 }
 
             }
