@@ -67,12 +67,19 @@ public static int port;
         try {
             if (params.length >= 1) {
                 String playerColor = params[0].toUpperCase();
+                if(playerColor == null){
+                    InGame.state = InGameStates.OBSERVER;
+                }
+                else{
+                    InGame.state = InGameStates.PLAYER;
+                }
                 int gameID = Integer.parseInt(params[1]);
                 JoinGameReq body = new JoinGameReq(playerColor,gameID);
                 try {
                     new ServerFacade(PostLoginMenu.port).joinGame(Repl.auth.authToken(), body);
                     GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE);
                     GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK);
+                    Repl.state = State.INGAME;
                     System.out.println("Joined game");
                     System.out.print(help());
                 } catch (Exception e) {

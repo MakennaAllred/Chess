@@ -105,3 +105,14 @@ public class ServerFacade {
     }
 
 }
+
+//client
+//websocket facade
+//notification handler:takes in server messages
+
+//server
+//hashmaps to send messages
+//websocket handler
+//handler takes message: user game commands
+
+//look at petshop, try to get it connected so you can send stuff across then look at methods

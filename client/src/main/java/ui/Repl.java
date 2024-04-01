@@ -2,10 +2,14 @@ package ui;
 
 import model.AuthData;
 
+import java.net.http.WebSocket;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Repl {
     public static State state = State.SIGNEDOUT;
+    public static HashMap<String, WebSocket> authsAndSessions = new HashMap<String,WebSocket>();
+    public static HashMap <Integer, String> gameIDAndUsers = new HashMap<Integer, String>();
     public static AuthData auth;
     public static String username;
     public static int port;
