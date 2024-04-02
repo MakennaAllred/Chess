@@ -24,6 +24,8 @@ public class WebSocketHandler {
     }
 
     private void joinPlayer(){
+        //connections.add()
+        String message = String.format("%s joined as %d")
         //server sends LOAD GAME msg back to root client
         // server sends NOTIFICATION msg to other clients in game notifying what color root client is joining as
     }

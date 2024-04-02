@@ -65,7 +65,7 @@ public static int port;
                 if (username != null && password != null) {
                     UserData user = new UserData(username, password, null);
                     try {
-                        Repl.auth = new ServerFacade(PreLoginMenu.port).login(user);
+                        Repl.auth = new ServerFacade(PreLoginMenu.port, null).login(user);
                         Repl.username = Repl.auth.username();
                         Repl.state = State.SIGNEDIN;
                         help();
@@ -93,7 +93,7 @@ public static int port;
                 if (username != null && password != null && email != null) {
                     UserData user = new UserData(username, password, email);
                     try {
-                        Repl.auth = new ServerFacade(PreLoginMenu.port).register(user);
+                        Repl.auth = new ServerFacade(PreLoginMenu.port, null).register(user);
                         Repl.username = Repl.auth.username();
                         Repl.state = State.SIGNEDIN;
                         help();

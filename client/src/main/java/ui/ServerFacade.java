@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataAccess.CreateGameRes;
 import dataAccess.JoinGameReq;
@@ -8,6 +9,8 @@ import dataAccess.customExceptions.DataAccessException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import ui.webSocket.NotificationHandler;
+import ui.webSocket.WebSocketFacade;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,9 +20,18 @@ import java.net.*;
 
 public class ServerFacade {
     private final String serverURL;
+    private NotificationHandler notificationHandler;
+    private WebSocketFacade socket;
 
-    public ServerFacade(int port){
-        this.serverURL = "http://localhost:" + port;}
+    public ServerFacade(int port, NotificationHandler notificationHandler){
+        this.notificationHandler = notificationHandler;
+        this.serverURL = "http://localhost:" + port;
+        this.socket = new WebSocketFacade(serverURL, notificationHandler);
+        //usergame commands and pass to websocket facade
+    }
+    public void joinPlayerWs(int gameID, ChessGame.TeamColor playerColor){
+        
+    }
     public AuthData login(UserData user) {
         String path = "/session";
         return this.makeRequest("POST",path, null, user, AuthData.class);

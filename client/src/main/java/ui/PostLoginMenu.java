@@ -76,7 +76,7 @@ public static int port;
                 int gameID = Integer.parseInt(params[1]);
                 JoinGameReq body = new JoinGameReq(playerColor,gameID);
                 try {
-                    new ServerFacade(PostLoginMenu.port).joinGame(Repl.auth.authToken(), body);
+                    new ServerFacade(PostLoginMenu.port, null).joinGame(Repl.auth.authToken(), body);
                     GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE);
                     GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK);
                     Repl.state = State.INGAME;
@@ -102,7 +102,7 @@ public static int port;
                 String gameName = params[0];
                 GameData gameBody = new GameData(0,null,null,gameName,null);
                 try{
-                    CreateGameRes game = new ServerFacade(PostLoginMenu.port).createGame(Repl.auth.authToken(),gameBody);
+                    CreateGameRes game = new ServerFacade(PostLoginMenu.port, null).createGame(Repl.auth.authToken(),gameBody);
                     System.out.print("Game" + game.gameID() + "created");
                     return game.gameID();
                 }catch (Exception e){
@@ -118,7 +118,7 @@ public static int port;
 
     public static ListGamesRes listGames(String...params){
         try{
-            ListGamesRes games = new ServerFacade(PostLoginMenu.port).listGames(Repl.auth.authToken());
+            ListGamesRes games = new ServerFacade(PostLoginMenu.port, null).listGames(Repl.auth.authToken());
             //for each games.games(), don't print the board
             for(GameData game :games.games()) {
                 System.out.print("gameID: " + game.gameID() + " ");
@@ -137,7 +137,7 @@ public static int port;
 
     public static Void logout(String...params){
         try{
-            new ServerFacade(PostLoginMenu.port).logout(Repl.auth.authToken());
+            new ServerFacade(PostLoginMenu.port, null).logout(Repl.auth.authToken());
             Repl.state = State.SIGNEDOUT;
             System.out.println("Logged out successfully");
             System.out.print(help());
@@ -148,7 +148,7 @@ public static int port;
     }
     public static Void clearAll(String...params){
         try{
-            new ServerFacade(PostLoginMenu.port).deleteAll(Repl.auth.authToken());
+            new ServerFacade(PostLoginMenu.port, null).deleteAll(Repl.auth.authToken());
             Repl.state = State.SIGNEDOUT;
             System.out.println("Everything cleared");
             System.out.print(help());
