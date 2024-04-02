@@ -1,9 +1,9 @@
 package ui.webSocket;
 
 import com.google.gson.Gson;
-
-
 import webSocketMessages.serverMessages.ServerMessage;
+import webSocketMessages.userCommands.UserGameCommand;
+
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
@@ -24,14 +24,13 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>(){
                 @Override
                 public void onMessage(String message){
-                    ServerMessage notification = new Gson().fromJson(message,ServerMessage.class);
+                    UserGameCommand notification = new Gson().fromJson(message,UserGameCommand.class);
                     notificationHandler.notify(notification);
                 }
             });
         } catch (URISyntaxException | DeploymentException | IOException e) {
             throw new RuntimeException(e);
         }
-
 
     }
 
