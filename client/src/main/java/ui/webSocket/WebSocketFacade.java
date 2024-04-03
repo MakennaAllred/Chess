@@ -38,4 +38,12 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(javax.websocket.Session session, EndpointConfig endpointConfig) {
 
     }
+    public void send(String s){
+        try{
+            this.session.getBasicRemote().sendText((s));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    //joinplayer (object)
 }

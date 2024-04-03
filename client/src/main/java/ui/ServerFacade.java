@@ -11,6 +11,8 @@ import model.GameData;
 import model.UserData;
 import ui.webSocket.NotificationHandler;
 import ui.webSocket.WebSocketFacade;
+import webSocketMessages.userCommands.JoinPlayer;
+import webSocketMessages.userCommands.UserGameCommand;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,8 +31,11 @@ public class ServerFacade {
         this.socket = new WebSocketFacade(serverURL, notificationHandler);
         //usergame commands and pass to websocket facade
     }
-    public void joinPlayerWs(int gameID, ChessGame.TeamColor playerColor){
-        
+    public void joinPlayerWs(String authToken,int gameID, ChessGame.TeamColor playerColor){
+        JoinPlayer v = new JoinPlayer(authToken, UserGameCommand.CommandType.JOIN_PLAYER, gameID, playerColor);
+        String join = new Gson().toJson(v);
+        socket.send(join);
+
     }
     public AuthData login(UserData user) {
         String path = "/session";
