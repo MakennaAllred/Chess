@@ -1,6 +1,7 @@
 package dataAccess;
 
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import dataAccess.customExceptions.AlreadyTakenException;
@@ -109,6 +110,46 @@ public class SQLGameDao implements GameDataAccess{
             }else{
                 throw new AlreadyTakenException("Error: Forbidden");
             }
+        }
+
+    }
+    public void removeUser(GameData game, ChessGame.TeamColor playerColor) {
+        if (playerColor == ChessGame.TeamColor.WHITE) {
+            if (game.whiteUsername() != null) {
+                String statement = "UPDATE games SET whiteUsername = ? WHERE gameID = ?";
+                try (Connection con = DatabaseManager.getConnection();
+                     PreparedStatement stmt = con.prepareStatement(statement)) {
+                    stmt.setString(1, null);
+                    stmt.setInt(2, game.gameID());
+                    stmt.executeUpdate();
+                } catch (SQLException | DataAccessException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        } else if (game.blackUsername() != null) {
+            if (game.whiteUsername() != null) {
+                String statement = "UPDATE games SET blackUsername = ? WHERE gameID = ?";
+                try (Connection con = DatabaseManager.getConnection();
+                     PreparedStatement stmt = con.prepareStatement(statement)) {
+                    stmt.setString(1, null);
+                    stmt.setInt(2, game.gameID());
+                    stmt.executeUpdate();
+                } catch (SQLException | DataAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+    public void updateGame(ChessGame game, int gameID){
+        String statement = "UPDATE games SET game = ? WHERE gameID = ?";
+        try (Connection con = DatabaseManager.getConnection();
+             PreparedStatement stmt = con.prepareStatement(statement)) {
+            stmt.setString(1, new Gson().toJson(game));
+            stmt.setInt(2, gameID);
+            stmt.executeUpdate();
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
         }
 
     }

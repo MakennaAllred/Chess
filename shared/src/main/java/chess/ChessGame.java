@@ -14,10 +14,12 @@ import java.util.Objects;
 public class ChessGame {
     private TeamColor teamTurn;
     private ChessBoard board;
+    private boolean isGameOver;
     public ChessGame() {
         this.teamTurn = TeamColor.WHITE;
         this.board = new ChessBoard();
         this.board.resetBoard();
+        this.isGameOver = false;
     }
 
     /**
@@ -25,6 +27,10 @@ public class ChessGame {
      */
     public TeamColor getTeamTurn() {
         return teamTurn;
+    }
+
+    public void setGameOver(boolean v){
+        isGameOver = v;
     }
 
     /**
@@ -77,6 +83,9 @@ public class ChessGame {
         ChessPiece current = board.getPiece(startPosition);
         Collection<ChessMove> valid = current.pieceMoves(board,startPosition);
         if(valid == null){
+            return null;
+        }
+        if(isGameOver){
             return null;
         }
         else{
@@ -227,6 +236,7 @@ public class ChessGame {
         boolean check = isInCheck(teamColor);
         if(check) {
             if(gameOver(teamColor)){
+                isGameOver = true;
                 return true;
             }
         }
@@ -262,6 +272,7 @@ public class ChessGame {
         if(gameOver(teamColor)) {
             // valid moves
             // if null, return true;
+            isGameOver = true;
             return true;
         }
         else{

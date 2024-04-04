@@ -13,14 +13,14 @@ public class InGame {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
-                case "redraw" -> redrawBoard(params);
-                case "leave" -> leave(params);
-                case "makeMove" -> makeMove(params);
-                case "resign" -> resign(params);
-                case "legalMoves" -> highlightLegalMoves(params);
-                default -> help();
-            };
+//            return switch (cmd) {
+//                case "redraw" -> redrawBoard(params);
+//                case "leave" -> leave(params);
+//                case "makeMove" -> makeMove(params);
+//                case "resign" -> resign(params);
+//                case "legalMoves" -> highlightLegalMoves(params);
+//                default -> help();
+//            };
         } catch (Exception e) {
             return e.getMessage();
         }

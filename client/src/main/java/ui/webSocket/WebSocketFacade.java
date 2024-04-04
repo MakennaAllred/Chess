@@ -45,5 +45,7 @@ public class WebSocketFacade extends Endpoint {
             throw new RuntimeException(e);
         }
     }
-    //joinplayer (object)
+     public void joinplayer(Object o){
+
+     }
 }

@@ -38,4 +38,14 @@ public class ConnectionsManager {
             authsAndSessions.remove(c.authToken);
         }
     }
+    public void clientNotify(String authToken, ServerMessage notification) throws IOException {
+        for (var c : authsAndSessions.values()) {
+            if (c.session.isOpen()) {
+                if (c.authToken.equals(authToken)) {
+                    c.send(notification.toString());
+                    return;
+                }
+            }
+        }
+    }
 }

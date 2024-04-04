@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import dataAccess.CreateGameRes;
 import dataAccess.JoinGameReq;
@@ -11,8 +12,7 @@ import model.GameData;
 import model.UserData;
 import ui.webSocket.NotificationHandler;
 import ui.webSocket.WebSocketFacade;
-import webSocketMessages.userCommands.JoinPlayer;
-import webSocketMessages.userCommands.UserGameCommand;
+import webSocketMessages.userCommands.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,8 +35,28 @@ public class ServerFacade {
         JoinPlayer v = new JoinPlayer(authToken, UserGameCommand.CommandType.JOIN_PLAYER, gameID, playerColor);
         String join = new Gson().toJson(v);
         socket.send(join);
-
     }
+    public void joinObserverWS(String authToken, int gameID){
+        JoinObserver o = new JoinObserver(authToken,gameID);
+        String obs = new Gson().toJson(o);
+        socket.send(obs);
+    }
+    public void makeMove(String authToken, int gameID, ChessMove move){
+        MakeMove mv = new MakeMove(authToken, UserGameCommand.CommandType.MAKE_MOVE,gameID,move);
+        String m = new Gson().toJson(mv);
+        socket.send(m);
+    }
+    public void leave(String authToken, int gameID){
+        Leave l = new Leave(authToken, UserGameCommand.CommandType.LEAVE,gameID);
+        String lv = new Gson().toJson(l);
+        socket.send(lv);
+    }
+    public void resign(String authToken, int gameID){
+        Resign r = new Resign(authToken, UserGameCommand.CommandType.RESIGN,gameID);
+        String rs = new Gson().toJson(r);
+        socket.send(rs);
+    }
+
     public AuthData login(UserData user) {
         String path = "/session";
         return this.makeRequest("POST",path, null, user, AuthData.class);
