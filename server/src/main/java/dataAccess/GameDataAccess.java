@@ -1,5 +1,6 @@
 package dataAccess;
 
+import chess.ChessGame;
 import dataAccess.customExceptions.AlreadyTakenException;
 import dataAccess.customExceptions.BadRequestException;
 import dataAccess.customExceptions.DataAccessException;
@@ -19,6 +20,10 @@ public interface GameDataAccess {
     Collection<GameData> listGames() throws DataAccessException;
 
     void updateGame(int gameID, String username, String color) throws DataAccessException, BadRequestException, AlreadyTakenException;
+
+    void updateGame(ChessGame game, int gameID);
+
+    void removeUser(GameData game, ChessGame.TeamColor color);
 
     void deleteAllGames() throws UnauthorizedException, DataAccessException;
 

@@ -56,6 +56,16 @@ public class MemoryGameDao implements GameDataAccess{
 
     }
 
+    @Override
+    public void updateGame(ChessGame game, int gameID) {
+
+    }
+
+    @Override
+    public void removeUser(GameData game, ChessGame.TeamColor color) {
+
+    }
+
     public void deleteAllGames() throws UnauthorizedException {
         games.clear();
     }

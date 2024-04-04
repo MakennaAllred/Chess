@@ -30,7 +30,7 @@ public class Server {
         gameService = new GameService(gameDao,authDao);
         userService = new UserService(userDao,authDao);
         clearService = new ClearService(authDao, userDao, gameDao);
-        webSocketHandler = new WebSocketHandler();
+        webSocketHandler = new WebSocketHandler(gameDao,authDao,userDao);
     }
 
 
