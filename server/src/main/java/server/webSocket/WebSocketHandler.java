@@ -55,29 +55,47 @@ public class WebSocketHandler {
         GameData gameInfo = games.getGame(join.gameID);
         String message = String.format("%s joined as %s player",auth.username(),join.playerColor);
         LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME,gameInfo);
-
-        //**FIXME:server sends LOAD GAME msg back to root client
         connections.clientNotify(auth.authToken(),notification);
         // server sends NOTIFICATION msg to other clients in game notifying what color root client is joining as
-        Notification notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION,message);
-        connections.broadcast(auth.authToken(),notification);
+        Notification notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION,message);
+        connections.broadcast(auth.authToken(),notif);
     }
-    private void joinObserver(UserGameCommand command, Session session) throws UnauthorizedException, IOException {
+    private void joinObserver(UserGameCommand command, Session session) throws UnauthorizedException, IOException, BadRequestException, DataAccessException {
         connections.add(command.getAuthString(),session);
         JoinObserver observerCom = (JoinObserver) command;
         AuthData userInfo = auths.getAuth(command.getAuthString());
         gamesAndUsers.put(observerCom.gameID,userInfo.authToken());
+        GameData gameInfo = games.getGame(observerCom.gameID);
         String message = String.format("%s joined as observer",userInfo.username());
-        //FIXME:sends load game message back to root client
-        Notification notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION,message);
-        connections.broadcast(userInfo.authToken(),notification);
-        //sends NOTIFICATION msg to other clients in that game informing root joined as observer
+        LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME,gameInfo);
+        connections.clientNotify(userInfo.authToken(),notification);
+        Notification notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION,message);
+        connections.broadcast(userInfo.authToken(),notif);
+
     };
-    private void leave(UserGameCommand com, Session session) throws UnauthorizedException, IOException {
-        //FIXME::game is updated to remove root client, game is updated in db
+    private void leave(UserGameCommand com, Session session) throws UnauthorizedException, IOException, BadRequestException, DataAccessException {
         Leave leaveCommand = (Leave) com;
+        String message;
+        GameData gameInfo = games.getGame(leaveCommand.gameID);
         AuthData userInfo = auths.getAuth(com.getAuthString());
-        String message = String.format("%s stopped observing the game",userInfo.username());
+        if(Objects.equals(userInfo.username(), gameInfo.blackUsername())){
+            games.removeUser(gameInfo, ChessGame.TeamColor.BLACK);
+            message = String.format("%s stopped playing as the black user",userInfo.username());
+            Notification notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION,message);
+            connections.broadcast(userInfo.authToken(), notification);
+            connections.remove(com.getAuthString());
+            gamesAndUsers.remove(leaveCommand.gameID);
+
+        }
+        else if (Objects.equals(userInfo.username(), gameInfo.whiteUsername())){
+            games.removeUser(gameInfo, ChessGame.TeamColor.WHITE);
+            message = String.format("%s stopped playing as the white user",userInfo.username());
+            Notification notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION,message);
+            connections.broadcast(userInfo.authToken(), notification);
+            connections.remove(com.getAuthString());
+            gamesAndUsers.remove(leaveCommand.gameID);
+        }
+        message = String.format("%s stopped observing the game",userInfo.username());
         Notification notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION,message);
         connections.broadcast(userInfo.authToken(), notification);
         connections.remove(com.getAuthString());
@@ -121,7 +139,6 @@ public class WebSocketHandler {
             }
         }
         if(isValid){
-            //FIXME: game is updated to represent move and game is updated in db
             gameInfo.game().makeMove(moveCommand.move);
             games.updateGame(gameInfo.game(),gameInfo.gameID());
             String message = String.format("%s made a move", userInfo.username());
@@ -134,4 +151,4 @@ public class WebSocketHandler {
     };
 }
 
-//updating game in db
+
