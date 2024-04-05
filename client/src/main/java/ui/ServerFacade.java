@@ -26,8 +26,7 @@ public class ServerFacade {
 
 
     public ServerFacade(String port){
-        this.serverURL = port;
-//    "http://localhost:" + port;
+        this.serverURL = "http://localhost:" + port;
         //usergame commands and pass to websocket facade
     }
 

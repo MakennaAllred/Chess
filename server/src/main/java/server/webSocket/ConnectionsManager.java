@@ -1,5 +1,6 @@
 package server.webSocket;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import webSocketMessages.serverMessages.ServerMessage;
 
@@ -26,7 +27,8 @@ public class ConnectionsManager {
         for (var c : authsAndSessions.values()) {
             if (c.session.isOpen()) {
                 if (!c.authToken.equals(excludeAuthToken)) {
-                    c.send(notification.toString());
+                    String not = new Gson().toJson(notification);
+                    c.send(not);
                 }
             } else {
                 removeList.add(c);
@@ -42,7 +44,8 @@ public class ConnectionsManager {
         for (var c : authsAndSessions.values()) {
             if (c.session.isOpen()) {
                 if (c.authToken.equals(authToken)) {
-                    c.send(notification.toString());
+                    String not = new Gson().toJson(notification);
+                    c.send(not);
                     return;
                 }
             }

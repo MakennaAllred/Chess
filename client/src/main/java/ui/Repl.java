@@ -15,12 +15,12 @@ public class Repl implements NotificationHandler {
     public static HashMap <Integer, String> gameIDAndUsers = new HashMap<Integer, String>();
     public static AuthData auth;
     public static String username;
-    public static String port;
+    public static String serverURL;
     public WebSocketFacade socket;
 
-    public Repl(String serverURL){
-        this.port = serverURL;
-        this.socket = new WebSocketFacade(port, this);
+    public Repl(int port){
+        this.serverURL = "http://localhost:" + port;
+        this.socket = new WebSocketFacade(serverURL, this);
     }
     public void run(){
         System.out.println("Welcome to Chess, login to start.");
@@ -34,11 +34,11 @@ public class Repl implements NotificationHandler {
 
             try{
                 if(state == State.SIGNEDOUT){
-                    res = PreLoginMenu.eval(port, line);
+                    res = PreLoginMenu.eval(serverURL, line);
                 } else if (state == State.SIGNEDIN) {
-                    res = PostLoginMenu.eval(port, line, socket);
+                    res = PostLoginMenu.eval(serverURL, line, socket);
                 }else{
-                    res = InGame.eval(port,line, socket);
+                    res = InGame.eval(serverURL,line, socket);
                 }
 
             }
