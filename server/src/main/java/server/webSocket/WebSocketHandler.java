@@ -5,14 +5,11 @@ import chess.ChessMove;
 import chess.ChessPosition;
 import chess.InvalidMoveException;
 import dataAccess.*;
-import dataAccess.customExceptions.AlreadyTakenException;
 import dataAccess.customExceptions.BadRequestException;
 import dataAccess.customExceptions.DataAccessException;
 import dataAccess.customExceptions.UnauthorizedException;
 import model.AuthData;
 import model.GameData;
-import org.eclipse.jetty.server.Authentication;
-import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.websocket.api.Session;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -45,6 +42,7 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String msg) {
+        System.out.println("received message");
         UserGameCommand userGameCommand = new Gson().fromJson(msg, UserGameCommand.class);
         switch (userGameCommand.getCommandType()) {
             case JOIN_PLAYER -> joinPlayer(msg, session);

@@ -10,7 +10,7 @@ public class ClientMain {
         if (args.length == 1) {
             serverUrl = args[0];
         }
-        new Repl(8080).run();
+        new Repl(serverUrl).run();
     }
 }
 

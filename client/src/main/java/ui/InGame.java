@@ -1,13 +1,14 @@
 package ui;
 
 import chess.ChessGame;
+import ui.webSocket.WebSocketFacade;
 
 import java.util.Arrays;
 
 public class InGame {
     public static InGameStates state;
-    public static int port;
-    public static String eval( int port, String input) {
+    public static String port;
+    public static String eval(String port, String input, WebSocketFacade socket) {
         InGame.port = port;
         try {
             var tokens = input.toLowerCase().split(" ");

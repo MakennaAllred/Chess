@@ -1,21 +1,26 @@
 package ui;
 
 import model.AuthData;
+import ui.webSocket.NotificationHandler;
+import ui.webSocket.WebSocketFacade;
+import webSocketMessages.serverMessages.ServerMessage;
 
 import java.net.http.WebSocket;
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class Repl {
+public class Repl implements NotificationHandler {
     public static State state = State.SIGNEDOUT;
     public static HashMap<String, WebSocket> authsAndSessions = new HashMap<String,WebSocket>();
     public static HashMap <Integer, String> gameIDAndUsers = new HashMap<Integer, String>();
     public static AuthData auth;
     public static String username;
-    public static int port;
+    public static String port;
+    public WebSocketFacade socket;
 
-    public Repl(int serverURL){
+    public Repl(String serverURL){
         this.port = serverURL;
+        this.socket = new WebSocketFacade(port, this);
     }
     public void run(){
         System.out.println("Welcome to Chess, login to start.");
@@ -31,9 +36,9 @@ public class Repl {
                 if(state == State.SIGNEDOUT){
                     res = PreLoginMenu.eval(port, line);
                 } else if (state == State.SIGNEDIN) {
-                    res = PostLoginMenu.eval(port, line);
+                    res = PostLoginMenu.eval(port, line, socket);
                 }else{
-                    res = InGame.eval(port,line);
+                    res = InGame.eval(port,line, socket);
                 }
 
             }
@@ -64,4 +69,8 @@ public class Repl {
                 """;
     }
 
+    @Override
+    public void notify(ServerMessage notification) {
+        System.out.println("it worked!");
+    }
 }

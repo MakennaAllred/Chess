@@ -22,39 +22,13 @@ import java.net.*;
 
 public class ServerFacade {
     private final String serverURL;
-    private NotificationHandler notificationHandler;
-    private WebSocketFacade socket;
 
-    public ServerFacade(int port, NotificationHandler notificationHandler){
-        this.notificationHandler = notificationHandler;
-        this.serverURL = "http://localhost:" + port;
-        this.socket = new WebSocketFacade(serverURL, notificationHandler);
+
+
+    public ServerFacade(String port){
+        this.serverURL = port;
+//    "http://localhost:" + port;
         //usergame commands and pass to websocket facade
-    }
-    public void joinPlayerWs(String authToken,int gameID, ChessGame.TeamColor playerColor){
-        JoinPlayer v = new JoinPlayer(authToken, UserGameCommand.CommandType.JOIN_PLAYER, gameID, playerColor);
-        String join = new Gson().toJson(v);
-        socket.send(join);
-    }
-    public void joinObserverWS(String authToken, int gameID){
-        JoinObserver o = new JoinObserver(authToken,gameID);
-        String obs = new Gson().toJson(o);
-        socket.send(obs);
-    }
-    public void makeMove(String authToken, int gameID, ChessMove move){
-        MakeMove mv = new MakeMove(authToken, UserGameCommand.CommandType.MAKE_MOVE,gameID,move);
-        String m = new Gson().toJson(mv);
-        socket.send(m);
-    }
-    public void leave(String authToken, int gameID){
-        Leave l = new Leave(authToken, UserGameCommand.CommandType.LEAVE,gameID);
-        String lv = new Gson().toJson(l);
-        socket.send(lv);
-    }
-    public void resign(String authToken, int gameID){
-        Resign r = new Resign(authToken, UserGameCommand.CommandType.RESIGN,gameID);
-        String rs = new Gson().toJson(r);
-        socket.send(rs);
     }
 
     public AuthData login(UserData user) {

@@ -1,8 +1,10 @@
 package ui.webSocket;
 
+import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import webSocketMessages.serverMessages.ServerMessage;
-import webSocketMessages.userCommands.UserGameCommand;
+import webSocketMessages.userCommands.*;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -45,7 +47,31 @@ public class WebSocketFacade extends Endpoint {
             throw new RuntimeException(e);
         }
     }
-     public void joinplayer(Object o){
 
-     }
+    public void joinPlayerWs(String authToken,int gameID, ChessGame.TeamColor playerColor){
+        JoinPlayer v = new JoinPlayer(authToken, UserGameCommand.CommandType.JOIN_PLAYER, gameID, playerColor);
+        String join = new Gson().toJson(v);
+        send(join);
+    }
+    public void joinObserverWS(String authToken, int gameID){
+        JoinObserver o = new JoinObserver(authToken,gameID);
+        String obs = new Gson().toJson(o);
+        send(obs);
+    }
+    public void makeMove(String authToken, int gameID, ChessMove move){
+        MakeMove mv = new MakeMove(authToken, UserGameCommand.CommandType.MAKE_MOVE,gameID,move);
+        String m = new Gson().toJson(mv);
+        send(m);
+    }
+    public void leave(String authToken, int gameID){
+        Leave l = new Leave(authToken, UserGameCommand.CommandType.LEAVE,gameID);
+        String lv = new Gson().toJson(l);
+        send(lv);
+    }
+    public void resign(String authToken, int gameID){
+        Resign r = new Resign(authToken, UserGameCommand.CommandType.RESIGN,gameID);
+        String rs = new Gson().toJson(r);
+        send(rs);
+    }
+
 }

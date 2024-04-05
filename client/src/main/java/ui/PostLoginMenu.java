@@ -8,19 +8,20 @@ import dataAccess.customExceptions.DataAccessException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import ui.webSocket.WebSocketFacade;
 
 import java.util.Arrays;
 
 public class PostLoginMenu {
-public static int port;
-    public static Object eval(int port, String input){
+public static String port;
+    public static Object eval(String port, String input, WebSocketFacade socket){
         PostLoginMenu.port = port;
         try{
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens,1,tokens.length);
             return switch(cmd){
-                case "join" -> joinGame(params);
+                case "join" -> joinGame(socket, params);
                 case "create" -> createGame(params);
                 case "list" -> listGames(params);
                 case "logout" -> logout(params);
@@ -63,20 +64,28 @@ public static int port;
                 - Quit
                 """;
     }
-    public static String joinGame(String...params){
+    public static String joinGame(WebSocketFacade socket, String... params){
         try {
             if (params.length >= 1) {
                 String playerColor = params[0].toUpperCase();
-                if(playerColor == null){
-                    InGame.state = InGameStates.OBSERVER;
-                }
-                else{
-                    InGame.state = InGameStates.PLAYER;
-                }
                 int gameID = Integer.parseInt(params[1]);
                 JoinGameReq body = new JoinGameReq(playerColor,gameID);
+                if(playerColor == null){
+                    InGame.state = InGameStates.OBSERVER;
+//                    socket.joinObserverWS();
+                }
+                else {
+                    InGame.state = InGameStates.PLAYER;
+                    if (playerColor.equals("WHITE")) {
+                        socket.joinPlayerWs(Repl.auth.authToken(), gameID, ChessGame.TeamColor.WHITE);
+                    }
+                    else{
+                        socket.joinPlayerWs(Repl.auth.authToken(), gameID, ChessGame.TeamColor.BLACK);
+                    }
+                }
+
                 try {
-                    new ServerFacade(PostLoginMenu.port, null).joinGame(Repl.auth.authToken(), body);
+                    new ServerFacade(PostLoginMenu.port).joinGame(Repl.auth.authToken(), body);
                     GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE);
                     GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK);
                     Repl.state = State.INGAME;
@@ -102,7 +111,7 @@ public static int port;
                 String gameName = params[0];
                 GameData gameBody = new GameData(0,null,null,gameName,null);
                 try{
-                    CreateGameRes game = new ServerFacade(PostLoginMenu.port, null).createGame(Repl.auth.authToken(),gameBody);
+                    CreateGameRes game = new ServerFacade(PostLoginMenu.port).createGame(Repl.auth.authToken(),gameBody);
                     System.out.print("Game" + game.gameID() + "created");
                     return game.gameID();
                 }catch (Exception e){
