@@ -21,7 +21,7 @@ public static String port;
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens,1,tokens.length);
             return switch(cmd){
-                case "join" -> joinGame(socket, params);
+                case "join" -> joinGame(socket, input, params);
                 case "create" -> createGame(params);
                 case "list" -> listGames(params);
                 case "logout" -> logout(params);
@@ -64,7 +64,7 @@ public static String port;
                 - Quit
                 """;
     }
-    public static String joinGame(WebSocketFacade socket, String... params){
+    public static String joinGame(WebSocketFacade socket, String line, String... params){
         try {
             if (params.length >= 1) {
                 String playerColor = params[0].toUpperCase();
@@ -72,14 +72,17 @@ public static String port;
                 JoinGameReq body = new JoinGameReq(playerColor,gameID);
                 if(playerColor == null){
                     InGame.state = InGameStates.OBSERVER;
-//                    socket.joinObserverWS();
+                    socket.joinObserverWS(Repl.auth.authToken(),gameID);
+                    InGame.eval(port, line, socket);
                 }
                 else {
                     InGame.state = InGameStates.PLAYER;
                     if (playerColor.equals("WHITE")) {
+                        InGame.eval(port, line, socket);
                         socket.joinPlayerWs(Repl.auth.authToken(), gameID, ChessGame.TeamColor.WHITE);
                     }
                     else{
+                        InGame.eval(port,line,socket);
                         socket.joinPlayerWs(Repl.auth.authToken(), gameID, ChessGame.TeamColor.BLACK);
                     }
                 }
@@ -127,7 +130,7 @@ public static String port;
 
     public static ListGamesRes listGames(String...params){
         try{
-            ListGamesRes games = new ServerFacade(PostLoginMenu.port, null).listGames(Repl.auth.authToken());
+            ListGamesRes games = new ServerFacade(PostLoginMenu.port).listGames(Repl.auth.authToken());
             //for each games.games(), don't print the board
             for(GameData game :games.games()) {
                 System.out.print("gameID: " + game.gameID() + " ");
@@ -146,7 +149,7 @@ public static String port;
 
     public static Void logout(String...params){
         try{
-            new ServerFacade(PostLoginMenu.port, null).logout(Repl.auth.authToken());
+            new ServerFacade(PostLoginMenu.port).logout(Repl.auth.authToken());
             Repl.state = State.SIGNEDOUT;
             System.out.println("Logged out successfully");
             System.out.print(help());
@@ -157,7 +160,7 @@ public static String port;
     }
     public static Void clearAll(String...params){
         try{
-            new ServerFacade(PostLoginMenu.port, null).deleteAll(Repl.auth.authToken());
+            new ServerFacade(PostLoginMenu.port).deleteAll(Repl.auth.authToken());
             Repl.state = State.SIGNEDOUT;
             System.out.println("Everything cleared");
             System.out.print(help());

@@ -14,6 +14,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import webSocketMessages.serverMessages.Error;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.serverMessages.ServerMessage;
@@ -59,14 +60,27 @@ public class WebSocketHandler {
             String authToken = join.getAuthString();
             connections.add(authToken, session);
             AuthData auth = auths.getAuth(authToken);
-            gamesAndUsers.put(join.gameID, auth.authToken());
-            GameData gameInfo = games.getGame(join.gameID);
-            String message = String.format("%s joined as %s player", auth.username(), join.playerColor);
-            LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
-            connections.clientNotify(auth.authToken(), notification);
-            // server sends NOTIFICATION msg to other clients in game notifying what color root client is joining as
-            Notification notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-            connections.broadcast(auth.authToken(), notif);
+            if(auth != null) {
+                GameData gameInfo = games.getGame(join.gameID);
+                //check if client is in the game
+                if (gameInfo != null) {
+                    //make sure the colors and usernames match
+                    //Fixme: check to make sure client isn't taking over a player that's already taken/ empty team
+                    String message = String.format("%s joined as %s player", auth.username(), join.playerColor);
+                    LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
+                    gamesAndUsers.put(gameInfo.gameID(), authToken);
+                    connections.clientNotify(auth.authToken(), notification);
+                    // server sends NOTIFICATION msg to other clients in game notifying what color root client is joining as
+                    Notification notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                    connections.broadcast(auth.authToken(), notif);
+                } else {
+                    Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Bad gameID");
+                    connections.clientNotify(auth.authToken(), notification);
+                }
+            }else{
+                Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Bad authtoken");
+                connections.clientNotify(authToken,notification);
+            }
         } catch (UnauthorizedException | IOException | BadRequestException | DataAccessException e) {
             System.out.println(e.getMessage());
         }
@@ -77,13 +91,23 @@ public class WebSocketHandler {
             JoinObserver observerCom = new Gson().fromJson(msg, JoinObserver.class);
             connections.add(observerCom.getAuthString(), session);
             AuthData userInfo = auths.getAuth(observerCom.getAuthString());
-            gamesAndUsers.put(observerCom.gameID, userInfo.authToken());
-            GameData gameInfo = games.getGame(observerCom.gameID);
-            String message = String.format("%s joined as observer", userInfo.username());
-            LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
-            connections.clientNotify(userInfo.authToken(), notification);
-            Notification notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-            connections.broadcast(userInfo.authToken(), notif);
+            if(userInfo != null) {
+                GameData gameInfo = games.getGame(observerCom.gameID);
+                if(gameInfo != null) {
+                    String message = String.format("%s joined as observer", userInfo.username());
+                    LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
+                    connections.clientNotify(userInfo.authToken(), notification);
+                    Notification notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                    gamesAndUsers.put(observerCom.gameID, userInfo.authToken());
+                    connections.broadcast(userInfo.authToken(), notif);
+                }else{
+                    Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Bad gameID");
+                    connections.clientNotify(userInfo.authToken(), notification);
+                }
+            }else{
+                Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Bad authtoken");
+                connections.clientNotify(observerCom.getAuthString(), notification);
+            }
         } catch (UnauthorizedException | IOException | BadRequestException | DataAccessException e) {
             System.out.println(e.getMessage());
         }
