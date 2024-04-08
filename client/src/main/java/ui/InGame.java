@@ -8,24 +8,24 @@ import java.util.Arrays;
 public class InGame {
     public static InGameStates state;
     public static String port;
+
     public static String eval(String port, String input, WebSocketFacade socket) {
         InGame.port = port;
         try {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-//            return switch (cmd) {
-//                case "redraw" -> redrawBoard(params);
-//                case "leave" -> leave(params);
-//                case "makeMove" -> makeMove(params);
-//                case "resign" -> resign(params);
-//                case "legalMoves" -> highlightLegalMoves(params);
-//                default -> help();
-//            };
+            return switch (cmd) {
+//                case "redraw" -> redrawBoard(input);
+                case "leave" -> leave(socket, params);
+//                case "makeMove" -> makeMove(socket, input);
+                case "resign" -> resign(socket, input);
+//                case "legalMoves" -> highlightLegalMoves(input);
+                default -> help();
+            };
         } catch (Exception e) {
             return e.getMessage();
         }
-        return null;
     }
 
 
@@ -60,23 +60,33 @@ public class InGame {
                 """;
     }
 
-    public static void redrawBoard(String... params){
+    public static void redrawBoard(String input){
         //if observer print from white perspective
-        GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE);
+        if (state == InGameStates.OBSERVER) {
+            GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE);
+        }else{
+            GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK);
+        }
         // if not print from player's perspective
     }
 
-    public static void leave(String...params){
+    public static String leave(WebSocketFacade socket, String...params){
         //if observing delete user from both hashmaps and go back to the logged in menu
-        //if player removes username color name still goes back to post log in menu
+        int gameID = Integer.parseInt(params[0]);
+        socket.leave(Repl.auth.authToken(),gameID);
+        Repl.state = State.SIGNEDIN;
+        return "left";
     }
-    public static void makeMove(String... params){
+    public static void makeMove(WebSocketFacade socket, String... params){
         //only for players not observers
         //allows user to input what move they want to make
         //board updates, and notifies everyone involved in the game
     }
-    public static void resign(String...params){
+    public static String resign(WebSocketFacade socket,  String...params){
         //confirms user wants to resign, if yes they lose and game is over
+        int gameID = Integer.parseInt(params[0]);
+        socket.resign(Repl.auth.authToken(), gameID);
+        return "resigned";
         //notify everyone of other player winning
         //doesn't make resigned user leave
     }

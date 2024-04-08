@@ -114,6 +114,7 @@ public class SQLGameDao implements GameDataAccess{
 
     }
     public void removeUser(GameData game, ChessGame.TeamColor playerColor) {
+        String username = null;
         if (playerColor == ChessGame.TeamColor.WHITE) {
             if (game.whiteUsername() != null) {
                 String statement = "UPDATE games SET whiteUsername = ? WHERE gameID = ?";
@@ -125,7 +126,6 @@ public class SQLGameDao implements GameDataAccess{
                 } catch (SQLException | DataAccessException e) {
                     throw new RuntimeException(e);
                 }
-
             }
         } else if (game.blackUsername() != null) {
             if (game.whiteUsername() != null) {

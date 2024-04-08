@@ -73,17 +73,17 @@ public static String port;
                 if(playerColor == null){
                     InGame.state = InGameStates.OBSERVER;
                     socket.joinObserverWS(Repl.auth.authToken(),gameID);
-                    InGame.eval(port, line, socket);
+                    Repl.state = State.INGAME;
                 }
                 else {
                     InGame.state = InGameStates.PLAYER;
                     if (playerColor.equals("WHITE")) {
-                        InGame.eval(port, line, socket);
                         socket.joinPlayerWs(Repl.auth.authToken(), gameID, ChessGame.TeamColor.WHITE);
+                        Repl.state = State.INGAME;
                     }
                     else{
-                        InGame.eval(port,line,socket);
                         socket.joinPlayerWs(Repl.auth.authToken(), gameID, ChessGame.TeamColor.BLACK);
+                        Repl.state = State.INGAME;
                     }
                 }
 

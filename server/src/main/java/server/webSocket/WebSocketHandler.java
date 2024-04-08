@@ -62,17 +62,32 @@ public class WebSocketHandler {
             AuthData auth = auths.getAuth(authToken);
             if(auth != null) {
                 GameData gameInfo = games.getGame(join.gameID);
-                //check if client is in the game
                 if (gameInfo != null) {
-                    //make sure the colors and usernames match
-                    //Fixme: check to make sure client isn't taking over a player that's already taken/ empty team
-                    String message = String.format("%s joined as %s player", auth.username(), join.playerColor);
-                    LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
-                    gamesAndUsers.put(gameInfo.gameID(), authToken);
-                    connections.clientNotify(auth.authToken(), notification);
-                    // server sends NOTIFICATION msg to other clients in game notifying what color root client is joining as
-                    Notification notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                    connections.broadcast(auth.authToken(), notif);
+                    if(join.playerColor == ChessGame.TeamColor.WHITE) {
+                        if (Objects.equals(auth.username(), gameInfo.whiteUsername())) {
+                            String message = String.format("%s joined as %s player", auth.username(), join.playerColor);
+                            LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
+                            gamesAndUsers.put(gameInfo.gameID(), authToken);
+                            connections.clientNotify(auth.authToken(), notification);
+                            Notification notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                            connections.broadcast(auth.authToken(), notif);
+                        }else{
+                            Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "player hasn't joined game properly");
+                            connections.clientNotify(auth.authToken(), notification);
+                        }
+                    }else {
+                        if (Objects.equals(auth.username(), gameInfo.blackUsername())) {
+                            String message = String.format("%s joined as %s player", auth.username(), join.playerColor);
+                            LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
+                            gamesAndUsers.put(gameInfo.gameID(), authToken);
+                            connections.clientNotify(auth.authToken(), notification);
+                            Notification notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                            connections.broadcast(auth.authToken(), notif);
+                        } else {
+                            Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "player hasn't joined game properly");
+                            connections.clientNotify(auth.authToken(), notification);
+                        }
+                    }
                 } else {
                     Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Bad gameID");
                     connections.clientNotify(auth.authToken(), notification);
@@ -130,6 +145,7 @@ public class WebSocketHandler {
                 connections.remove(leaveCommand.getAuthString());
                 gamesAndUsers.remove(leaveCommand.gameID);
 
+
             } else if (Objects.equals(userInfo.username(), gameInfo.whiteUsername())) {
                 games.removeUser(gameInfo, ChessGame.TeamColor.WHITE);
                 message = String.format("%s stopped playing as the white user", userInfo.username());
@@ -138,11 +154,13 @@ public class WebSocketHandler {
                 connections.remove(leaveCommand.getAuthString());
                 gamesAndUsers.remove(leaveCommand.gameID);
             }
-            message = String.format("%s stopped observing the game", userInfo.username());
-            Notification notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-            connections.broadcast(userInfo.authToken(), notification);
-            connections.remove(leaveCommand.getAuthString());
-            gamesAndUsers.remove(leaveCommand.gameID);
+            else {
+                message = String.format("%s stopped observing the game", userInfo.username());
+                Notification notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                connections.broadcast(userInfo.authToken(), notification);
+                connections.remove(leaveCommand.getAuthString());
+                gamesAndUsers.remove(leaveCommand.gameID);
+            }
         } catch (UnauthorizedException | IOException | BadRequestException | DataAccessException e) {
             System.out.println(e.getMessage());
         }
