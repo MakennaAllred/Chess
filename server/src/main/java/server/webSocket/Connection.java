@@ -4,6 +4,7 @@ import java.io.IOException;
 
 public class Connection {
     public String authToken;
+    //usernames
     public Session session;
 
     public Connection(String authToken, Session session){

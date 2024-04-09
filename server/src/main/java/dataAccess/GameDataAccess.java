@@ -10,6 +10,7 @@ import model.GameData;
 import java.util.Collection;
 
 public interface GameDataAccess {
+    public boolean isGameOver = false;
 
 
     int createGame(String gameName) throws DataAccessException;

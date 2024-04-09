@@ -14,12 +14,11 @@ import java.util.Objects;
 public class ChessGame {
     private TeamColor teamTurn;
     private ChessBoard board;
-    private boolean isGameOver;
+    public boolean isGameOver;
     public ChessGame() {
         this.teamTurn = TeamColor.WHITE;
         this.board = new ChessBoard();
         this.board.resetBoard();
-        this.isGameOver = false;
     }
 
     /**
@@ -81,45 +80,43 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         Collection<ChessMove> moves = new ArrayList<>();
         ChessPiece current = board.getPiece(startPosition);
-        Collection<ChessMove> valid = current.pieceMoves(board,startPosition);
-        if(valid == null){
+        Collection<ChessMove> valid = current.pieceMoves(board, startPosition);
+        if (valid == null) {
             return null;
         }
-        if(isGameOver){
+        if (isGameOver) {
             return null;
-        }
-        else{
+        } else {
             //clone board
             TeamColor teamColor = current.getTeamColor();
 //            ChessBoard clone = board;
             //try each potential move
-            for(ChessMove posMove:valid){
+            for (ChessMove posMove : valid) {
                 ChessPosition potentialStart = posMove.getStartPosition();
                 ChessPosition potentialEnd = posMove.getEndPosition();
                 //look at end position of the chess move & save the piece at that position
                 ChessPiece potentialPiece = board.getPiece(potentialEnd);
                 // put og piece at pot end and put null at start
                 ChessPiece.PieceType potPromoPiece = posMove.getPromotionPiece();
-                ChessPiece promoPiece = new ChessPiece(teamColor,potPromoPiece);
-                if(potPromoPiece != null){
+                ChessPiece promoPiece = new ChessPiece(teamColor, potPromoPiece);
+                if (potPromoPiece != null) {
                     board.addPiece(potentialEnd, promoPiece);
                     board.addPiece(potentialStart, null);
-                }
-                else {
+                } else {
                     board.addPiece(potentialEnd, current);
                     board.addPiece(potentialStart, null);
                 }
                 boolean check = isInCheck(teamColor);
                 //if false then it is a valid move so add it
-                if(!check) {
+                if (!check) {
                     moves.add(posMove);
                 }
                 //then reverse the move and put it back
-                board.addPiece(potentialEnd,potentialPiece);
-                board.addPiece(startPosition,current);
+                board.addPiece(potentialEnd, potentialPiece);
+                board.addPiece(startPosition, current);
             }
         }
-       return moves;
+        return moves;
     }
 
     /**

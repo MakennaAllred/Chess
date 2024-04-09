@@ -27,21 +27,22 @@ import java.util.*;
 @WebSocket
 public class WebSocketHandler {
 
-    private UserDataAccess users;
     private GameDataAccess games;
     private AuthDataAccess auths;
-    private final ConnectionsManager connections = new ConnectionsManager();
+//    private final ConnectionsManager connections = new ConnectionsManager();
+    private Map <Integer, ConnectionsManager> gameOrganizer = new HashMap<>();
+    //map gameID and connection manager
     private Map<Integer, List<String>> gamesAndUsers = new HashMap<>() {
     };
+    public Map<Integer, String> gameOver = new HashMap<>();
 
     public WebSocketHandler(GameDataAccess games, AuthDataAccess auths, UserDataAccess users){
         this.auths = auths;
         this.games = games;
-        this.users = users;
     }
 
     @OnWebSocketMessage
-    public void onMessage(Session session, String msg) {
+    public void onMessage(Session session, String msg) throws IOException {
         System.out.println("received message");
         UserGameCommand userGameCommand = new Gson().fromJson(msg, UserGameCommand.class);
         switch (userGameCommand.getCommandType()) {
@@ -54,12 +55,18 @@ public class WebSocketHandler {
     }
 
     private void joinPlayer(String msg, Session session) {
-        //values.removeif
         try {
             JoinPlayer join = new Gson().fromJson(msg, JoinPlayer.class);
             String authToken = join.getAuthString();
-            connections.add(authToken, session);
             AuthData auth = auths.getAuth(authToken);
+            if (gameOrganizer.containsKey(join.gameID)){
+                ConnectionsManager con = gameOrganizer.get(join.gameID);
+                con.add(join.getAuthString(),session);
+            }else{
+                ConnectionsManager con = new ConnectionsManager();
+                con.add(join.getAuthString(),session);
+                gameOrganizer.put(join.gameID, con);
+            }
             if(auth != null) {
                 GameData gameInfo = games.getGame(join.gameID);
                 if (gameInfo != null) {
@@ -76,13 +83,15 @@ public class WebSocketHandler {
                                 clientsInGame.add(authToken);
                                 }
                             gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
-                            connections.clientNotify(auth.authToken(), notification);
                             Notification notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                            connections.broadcast(auth.authToken(), notif);
+                            ConnectionsManager c = gameOrganizer.get(join.gameID);
+                            c.broadcast(auth.authToken(), notif);
+                            c.clientNotify(auth.authToken(), notification);
 
                         }else{
                             Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "player hasn't joined game properly");
-                            connections.clientNotify(auth.authToken(), notification);
+                            ConnectionsManager c = gameOrganizer.get(join.gameID);
+                            c.clientNotify(auth.authToken(), notification);
                         }
                     }else {
                         if (Objects.equals(auth.username(), gameInfo.blackUsername())) {
@@ -97,21 +106,25 @@ public class WebSocketHandler {
                                 clientsInGame.add(authToken);
                             }
                             gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
-                            connections.clientNotify(auth.authToken(), notification);
+                            ConnectionsManager c = gameOrganizer.get(join.gameID);
+                            c.clientNotify(auth.authToken(), notification);
                             Notification notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                            connections.broadcast(auth.authToken(), notif);
+                            c.broadcast(auth.authToken(), notif);
                         } else {
+                            ConnectionsManager c = gameOrganizer.get(join.gameID);
                             Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "player hasn't joined game properly");
-                            connections.clientNotify(auth.authToken(), notification);
+                            c.clientNotify(auth.authToken(), notification);
                         }
                     }
                 } else {
+                    ConnectionsManager c = gameOrganizer.get(join.gameID);
                     Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Bad gameID");
-                    connections.clientNotify(auth.authToken(), notification);
+                    c.clientNotify(auth.authToken(), notification);
                 }
             }else{
+                ConnectionsManager c = gameOrganizer.get(join.gameID);
                 Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Bad authtoken");
-                connections.clientNotify(authToken,notification);
+                c.clientNotify(authToken,notification);
             }
         } catch (UnauthorizedException | IOException | BadRequestException | DataAccessException e) {
             System.out.println(e.getMessage());
@@ -121,14 +134,22 @@ public class WebSocketHandler {
     private void joinObserver(String msg, Session session) {
         try {
             JoinObserver observerCom = new Gson().fromJson(msg, JoinObserver.class);
-            connections.add(observerCom.getAuthString(), session);
             AuthData userInfo = auths.getAuth(observerCom.getAuthString());
+            if (gameOrganizer.containsKey(observerCom.gameID)){
+                ConnectionsManager con = gameOrganizer.get(observerCom.gameID);
+                con.add(observerCom.getAuthString(),session);
+            }else{
+                ConnectionsManager con = new ConnectionsManager();
+                con.add(observerCom.getAuthString(),session);
+                gameOrganizer.put(observerCom.gameID, con);
+            }
             if(userInfo != null) {
                 GameData gameInfo = games.getGame(observerCom.gameID);
                 if(gameInfo != null) {
                     String message = String.format("%s joined as observer", userInfo.username());
                     LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
-                    connections.clientNotify(userInfo.authToken(), notification);
+                    ConnectionsManager c = gameOrganizer.get(observerCom.gameID);
+                    c.clientNotify(userInfo.authToken(), notification);
                     Notification notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
                     List<String> clientsInGame = gamesAndUsers.get(gameInfo.gameID());
                     if(clientsInGame != null) {
@@ -139,14 +160,16 @@ public class WebSocketHandler {
                         clientsInGame.add(userInfo.authToken());
                     }
                     gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
-                    connections.broadcast(userInfo.authToken(), notif);
+                    c.broadcast(userInfo.authToken(), notif);
                 }else{
+                    ConnectionsManager c = gameOrganizer.get(observerCom.gameID);
                     Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Bad gameID");
-                    connections.clientNotify(userInfo.authToken(), notification);
+                    c.clientNotify(userInfo.authToken(), notification);
                 }
             }else{
+                ConnectionsManager c = gameOrganizer.get(observerCom.gameID);
                 Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Bad authtoken");
-                connections.clientNotify(observerCom.getAuthString(), notification);
+                c.clientNotify(observerCom.getAuthString(), notification);
             }
         } catch (UnauthorizedException | IOException | BadRequestException | DataAccessException e) {
             System.out.println(e.getMessage());
@@ -166,20 +189,20 @@ public class WebSocketHandler {
                 games.removeUser(gameInfo, ChessGame.TeamColor.BLACK);
                 message = String.format("%s stopped playing as the black user", userInfo.username());
                 Notification notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                connections.broadcast(userInfo.authToken(), notification);
-                connections.remove(leaveCommand.getAuthString());
+                ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
+                c.broadcast(userInfo.authToken(), notification);
+                c.remove(leaveCommand.getAuthString());
                 List<String> clientsInGame = gamesAndUsers.get(gameInfo.gameID());
                 clientsInGame.remove((leaveCommand.getAuthString()));
                 gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
-
-
 
             } else if (Objects.equals(userInfo.username(), gameInfo.whiteUsername())) {
                 games.removeUser(gameInfo, ChessGame.TeamColor.WHITE);
                 message = String.format("%s stopped playing as the white user", userInfo.username());
                 Notification notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                connections.broadcast(userInfo.authToken(), notification);
-                connections.remove(leaveCommand.getAuthString());
+                ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
+                c.broadcast(userInfo.authToken(), notification);
+                c.remove(leaveCommand.getAuthString());
                 List<String> clientsInGame = gamesAndUsers.get(gameInfo.gameID());
                 clientsInGame.remove((leaveCommand.getAuthString()));
                 gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
@@ -187,8 +210,9 @@ public class WebSocketHandler {
             else {
                 message = String.format("%s stopped observing the game", userInfo.username());
                 Notification notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                connections.broadcast(userInfo.authToken(), notification);
-                connections.remove(leaveCommand.getAuthString());
+                ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
+                c.broadcast(userInfo.authToken(), notification);
+                c.remove(leaveCommand.getAuthString());
                 List<String> clientsInGame = gamesAndUsers.get(gameInfo.gameID());
                 clientsInGame.remove((leaveCommand.getAuthString()));
                 gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
@@ -201,43 +225,48 @@ public class WebSocketHandler {
 
 
     private void resign(String msg, Session session) {
-        String member = "";
-        //server marks game as game over(no more moves can be made)
         try {
             Resign resignCommand = new Gson().fromJson(msg, Resign.class);
             AuthData userInfo = auths.getAuth(resignCommand.getAuthString());
             GameData gameInfo = games.getGame(resignCommand.gameID);
+            if(Objects.equals(gameOver.get(gameInfo.gameID()), "yes")){
+                Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Can't resign, game is over");
+                ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
+                c.clientNotify(userInfo.authToken(), notification);
+                return;
+            }
             List<String> clientsInGame = gamesAndUsers.get(gameInfo.gameID());
-            for(String auth : clientsInGame) {
+            Iterator<String> iterator = clientsInGame.iterator();
+            while (iterator.hasNext()) {
+                String auth = iterator.next();
                 if (Objects.equals(auth, userInfo.authToken())) {
-                    gameInfo.game().setGameOver(true);
+                    gameOver.put(gameInfo.gameID(), "yes");
                     String black = gameInfo.blackUsername();
                     String white = gameInfo.whiteUsername();
                     if (Objects.equals(userInfo.username(), white)) {
                         games.removeUser(gameInfo, ChessGame.TeamColor.WHITE);
 
                     }
-                    if (Objects.equals(userInfo.username(), black)) {
+                    else if (Objects.equals(userInfo.username(), black)) {
                         games.removeUser(gameInfo, ChessGame.TeamColor.BLACK);
-
                     }
-                    member = auth;
+                    else{
+                        Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Can't resign as observer");
+                        ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
+                        c.clientNotify(userInfo.authToken(), notification);
+                        break;
+                    }
+                    iterator.remove();
                     gameInfo = games.getGame(resignCommand.gameID);
                     String message = String.format("%s resigned from the game. The game is over", userInfo.username());
                     Notification notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                    connections.broadcast(userInfo.authToken(), notification);
-                    connections.remove(userInfo.authToken());
-                    connections.clientNotify(userInfo.authToken(),notification);
-//                    clientsInGame.removeIf(auth -> Objects.equals(auth, userInfo.authToken()));
-//                    gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
-                } else {
-                    Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Bad authtoken");
-                    connections.clientNotify(resignCommand.getAuthString(), notification);
+                    ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
+                    c.broadcast(userInfo.authToken(), notification);
+                    c = gameOrganizer.get(gameInfo.gameID());
+                    c.clientNotify(userInfo.authToken(), notification);
+                    c.remove(userInfo.authToken());
+                    gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
                 }
-            }
-            if(member != null) {
-                clientsInGame.remove(member);
-                gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
             }
             //game is updated in db
         } catch (UnauthorizedException | IOException | BadRequestException | DataAccessException e) {
@@ -248,19 +277,26 @@ public class WebSocketHandler {
 
 
 
-    private void makeMove(String msg, Session session) {
+    private void makeMove(String msg, Session session) throws IOException {
         try {
-            //verify valid move
+            //fixme: check to make sure user is in the game and hasn't resigned
             MakeMove moveCommand = new Gson().fromJson(msg, MakeMove.class);
             boolean isValid = false;
             AuthData userInfo = auths.getAuth(moveCommand.getAuthString());
             GameData gameInfo = games.getGame(moveCommand.gameID);
+            if(Objects.equals(gameOver.get(gameInfo.gameID()), "yes")){
+                Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Can't resign, game is over");
+                ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
+                c.clientNotify(userInfo.authToken(), notification);
+                return;
+            }
             String black = gameInfo.blackUsername();
             String white = gameInfo.whiteUsername();
             if (Objects.equals(userInfo.username(), black)) {
                 if (gameInfo.game().getTeamTurn() != ChessGame.TeamColor.BLACK) {
                     Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Not your turn, cannot make move");
-                    connections.clientNotify(moveCommand.getAuthString(), notification);
+                    ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
+                    c.clientNotify(moveCommand.getAuthString(), notification);
                 }else{
                     ChessPosition start = moveCommand.move.getStartPosition();
                     Collection<ChessMove> validMoves = gameInfo.game().validMoves(start);
@@ -276,18 +312,21 @@ public class WebSocketHandler {
                         String message = String.format("%s made a move", userInfo.username());
                         Notification noti = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
                         LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
-                        connections.broadcast("", notification);
-                        connections.broadcast(userInfo.authToken(), noti);
+                        ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
+                        c.broadcast("", notification);
+                        c.broadcast(userInfo.authToken(), noti);
                     } else {
                         Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Not a valid move");
-                        connections.clientNotify(moveCommand.getAuthString(), notification);
+                        ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
+                        c.clientNotify(moveCommand.getAuthString(), notification);
                     }
                 }
             }
             else if(Objects.equals(userInfo.username(), white)){
                 if(gameInfo.game().getTeamTurn() != ChessGame.TeamColor.WHITE){
                     Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Not your turn, cannot make move");
-                    connections.clientNotify(moveCommand.getAuthString(), notification);
+                    ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
+                    c.clientNotify(moveCommand.getAuthString(), notification);
                 }else{
                     ChessPosition start = moveCommand.move.getStartPosition();
                     Collection<ChessMove> validMoves = gameInfo.game().validMoves(start);
@@ -303,17 +342,20 @@ public class WebSocketHandler {
                         String message = String.format("%s made a move", userInfo.username());
                         Notification noti = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
                         LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
-                        connections.broadcast("", notification);
-                        connections.broadcast(userInfo.authToken(), noti);
+                        ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
+                        c.broadcast("", notification);
+                        c.broadcast(userInfo.authToken(), noti);
                     } else {
+                        ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
                         Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Not a valid move");
-                        connections.clientNotify(moveCommand.getAuthString(), notification);
+                        c.clientNotify(moveCommand.getAuthString(), notification);
                     }
                 }
 
             }else{
                 Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Cannot make moves as an observer");
-                connections.clientNotify(moveCommand.getAuthString(), notification);
+                ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
+                c.clientNotify(moveCommand.getAuthString(), notification);
             }
         }
 
@@ -328,4 +370,4 @@ public class WebSocketHandler {
 
 
 
-//Send resign initial confirmation message?
+

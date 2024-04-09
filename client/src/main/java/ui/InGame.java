@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import ui.webSocket.WebSocketFacade;
 
 import java.util.Arrays;
@@ -62,34 +63,27 @@ public class InGame {
     }
 
     public static String redrawBoard(String input){
-        //if observer print from white perspective
-        if (state == InGameStates.OBSERVER) {
-            GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE);
-        }else{
-            GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK);
-        }
-        // if not print from player's perspective
+        GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE);
+        GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK);
         return "board drawn";
     }
 
     public static String leave(WebSocketFacade socket, String...params){
         //if observing delete user from both hashmaps and go back to the logged in menu
-        int gameID = Integer.parseInt(params[0]);
-        socket.leave(Repl.auth.authToken(),gameID);
+        socket.leave(Repl.auth.authToken(),Repl.gameID);
         Repl.state = State.SIGNEDIN;
         return "left";
     }
     public static String makeMove(WebSocketFacade socket, String... params){
         //only for players not observers
-        socket.makeMove(Repl.auth.authToken(),1,null);
+        socket.makeMove(Repl.auth.authToken(),Repl.gameID,null);
         //allows user to input what move they want to make
         //board updates, and notifies everyone involved in the game
         return "made move";
     }
     public static String resign(WebSocketFacade socket,  String...params){
         //confirms user wants to resign, if yes they lose and game is over
-        int gameID = Integer.parseInt(params[0]);
-        socket.resign(Repl.auth.authToken(), gameID);
+        socket.resign(Repl.auth.authToken(), Repl.gameID);
         return "resigned";
         //notify everyone of other player winning
         //doesn't make resigned user leave
@@ -97,6 +91,10 @@ public class InGame {
     public static String highlightLegalMoves(String...params){
         //allows user to input what piece they want to know moves for
         //current piece's square and possible squares are highlighted
+        if(params.length > 1){
+            String piece = params[0];
+        }
+
         //don't notify other users in the game, for local user only
         return "highlighted moves";
     }

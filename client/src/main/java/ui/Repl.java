@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import model.AuthData;
 import ui.webSocket.NotificationHandler;
 import ui.webSocket.WebSocketFacade;
@@ -16,11 +17,14 @@ public class Repl implements NotificationHandler {
     public static AuthData auth;
     public static String username;
     public static String serverURL;
+    public static ChessGame game;
+    public static int gameID;
     public WebSocketFacade socket;
 
     public Repl(int port){
-        this.serverURL = "http://localhost:" + port;
-        this.socket = new WebSocketFacade(serverURL, this);
+        String p = String.valueOf(port);
+        serverURL = "http://localhost:" + p;
+        socket = new WebSocketFacade(serverURL, this);
     }
     public void run(){
         System.out.println("Welcome to Chess, login to start.");
