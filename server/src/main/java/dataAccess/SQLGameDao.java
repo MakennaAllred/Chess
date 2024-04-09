@@ -117,11 +117,11 @@ public class SQLGameDao implements GameDataAccess{
         String username = null;
         if (playerColor == ChessGame.TeamColor.WHITE) {
             if (game.whiteUsername() != null) {
-                String statement = "UPDATE games SET whiteUsername = ? WHERE gameID = ?";
+                String statement = "UPDATE games SET whiteUsername = NULL WHERE gameID = ?";
                 try (Connection con = DatabaseManager.getConnection();
                      PreparedStatement stmt = con.prepareStatement(statement)) {
-                    stmt.setString(1, null);
-                    stmt.setInt(2, game.gameID());
+//                    stmt.setString(1, null);
+                    stmt.setInt(1, game.gameID());
                     stmt.executeUpdate();
                 } catch (SQLException | DataAccessException e) {
                     throw new RuntimeException(e);
@@ -129,11 +129,11 @@ public class SQLGameDao implements GameDataAccess{
             }
         } else if (game.blackUsername() != null) {
             if (game.whiteUsername() != null) {
-                String statement = "UPDATE games SET blackUsername = ? WHERE gameID = ?";
+                String statement = "UPDATE games SET blackUsername = NULL WHERE gameID = ?";
                 try (Connection con = DatabaseManager.getConnection();
                      PreparedStatement stmt = con.prepareStatement(statement)) {
-                    stmt.setString(1, null);
-                    stmt.setInt(2, game.gameID());
+//                    stmt.setString(1, null);
+                    stmt.setInt(1, game.gameID());
                     stmt.executeUpdate();
                 } catch (SQLException | DataAccessException e) {
                     throw new RuntimeException(e);

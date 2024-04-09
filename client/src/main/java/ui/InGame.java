@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import ui.webSocket.WebSocketFacade;
 
 import java.util.Arrays;
@@ -16,11 +17,11 @@ public class InGame {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-//                case "redraw" -> redrawBoard(input);
+                case "redraw" -> redrawBoard(input);
                 case "leave" -> leave(socket, params);
-//                case "makeMove" -> makeMove(socket, input);
+                case "makeMove" -> makeMove(socket, input);
                 case "resign" -> resign(socket, input);
-//                case "legalMoves" -> highlightLegalMoves(input);
+                case "legalMoves" -> highlightLegalMoves(input);
                 default -> help();
             };
         } catch (Exception e) {
@@ -60,7 +61,7 @@ public class InGame {
                 """;
     }
 
-    public static void redrawBoard(String input){
+    public static String redrawBoard(String input){
         //if observer print from white perspective
         if (state == InGameStates.OBSERVER) {
             GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE);
@@ -68,6 +69,7 @@ public class InGame {
             GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK);
         }
         // if not print from player's perspective
+        return "board drawn";
     }
 
     public static String leave(WebSocketFacade socket, String...params){
@@ -77,10 +79,12 @@ public class InGame {
         Repl.state = State.SIGNEDIN;
         return "left";
     }
-    public static void makeMove(WebSocketFacade socket, String... params){
+    public static String makeMove(WebSocketFacade socket, String... params){
         //only for players not observers
+        socket.makeMove(Repl.auth.authToken(),1,null);
         //allows user to input what move they want to make
         //board updates, and notifies everyone involved in the game
+        return "made move";
     }
     public static String resign(WebSocketFacade socket,  String...params){
         //confirms user wants to resign, if yes they lose and game is over
@@ -90,10 +94,11 @@ public class InGame {
         //notify everyone of other player winning
         //doesn't make resigned user leave
     }
-    public static void highlightLegalMoves(String...params){
+    public static String highlightLegalMoves(String...params){
         //allows user to input what piece they want to know moves for
         //current piece's square and possible squares are highlighted
         //don't notify other users in the game, for local user only
+        return "highlighted moves";
     }
 
 }
