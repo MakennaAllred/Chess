@@ -53,7 +53,16 @@ public class WebSocketHandler {
             case MAKE_MOVE -> makeMove(msg, session);
         }
     }
-
+    public void clientsInGameCheck(String authToken, int gameID){
+        List<String> clientsInGame = gamesAndUsers.get(gameID);
+        if(clientsInGame != null) {
+            clientsInGame.add((authToken));
+        }
+        else{
+            clientsInGame = new ArrayList<>();
+            clientsInGame.add(authToken);
+        }
+    }
     private void joinPlayer(String msg, Session session) {
         try {
             JoinPlayer join = new Gson().fromJson(msg, JoinPlayer.class);
@@ -74,14 +83,8 @@ public class WebSocketHandler {
                         if (Objects.equals(auth.username(), gameInfo.whiteUsername())) {
                             String message = String.format("%s joined as %s player", auth.username(), join.playerColor);
                             LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
+                            clientsInGameCheck(authToken,gameInfo.gameID());
                             List<String> clientsInGame = gamesAndUsers.get(gameInfo.gameID());
-                            if(clientsInGame != null) {
-                                clientsInGame.add((authToken));
-                            }
-                            else{
-                                clientsInGame = new ArrayList<>();
-                                clientsInGame.add(authToken);
-                                }
                             gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
                             Notification notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
                             ConnectionsManager c = gameOrganizer.get(join.gameID);
@@ -98,13 +101,7 @@ public class WebSocketHandler {
                             String message = String.format("%s joined as %s player", auth.username(), join.playerColor);
                             LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
                             List<String> clientsInGame = gamesAndUsers.get(gameInfo.gameID());
-                            if(clientsInGame != null) {
-                                clientsInGame.add((authToken));
-                            }
-                            else{
-                                clientsInGame = new ArrayList<>();
-                                clientsInGame.add(authToken);
-                            }
+                            clientsInGameCheck(authToken, gameInfo.gameID());
                             gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
                             ConnectionsManager c = gameOrganizer.get(join.gameID);
                             c.clientNotify(auth.authToken(), notification);
@@ -240,18 +237,10 @@ public class WebSocketHandler {
             while (iterator.hasNext()) {
                 String auth = iterator.next();
                 if (Objects.equals(auth, userInfo.authToken())) {
-//                    gameOver.put(gameInfo.gameID(), "yes");
                     gameInfo.game().setGameOver(true);
                     games.updateGame(gameInfo.game(),gameInfo.gameID());
                     String black = gameInfo.blackUsername();
                     String white = gameInfo.whiteUsername();
-//                    if (Objects.equals(userInfo.username(), white)) {
-//                        games.removeUser(gameInfo, ChessGame.TeamColor.WHITE);
-//
-//                    }
-//                    else if (Objects.equals(userInfo.username(), black)) {
-//                        games.removeUser(gameInfo, ChessGame.TeamColor.BLACK);
-//                    }
                     if(!Objects.equals(userInfo.username(), black) && !Objects.equals(userInfo.username(), white)){
                         Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Can't resign as observer");
                         ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
@@ -259,7 +248,6 @@ public class WebSocketHandler {
                         break;
                     }
                     iterator.remove();
-//                    gameInfo = games.getGame(resignCommand.gameID);
                     String message = String.format("%s resigned from the game. The game is over", userInfo.username());
                     Notification notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
                     ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
@@ -270,7 +258,6 @@ public class WebSocketHandler {
                     gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
                 }
             }
-            //game is updated in db
         } catch (UnauthorizedException | IOException | BadRequestException | DataAccessException e) {
             System.out.println(e.getMessage());
         }
@@ -285,7 +272,6 @@ public class WebSocketHandler {
             boolean isValid = false;
             AuthData userInfo = auths.getAuth(moveCommand.getAuthString());
             GameData gameInfo = games.getGame(moveCommand.gameID);
-//            System.out.println(gameInfo.game());
             if(gameInfo.game().isGameOver){
                 Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Can't make move, game is over");
                 ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
