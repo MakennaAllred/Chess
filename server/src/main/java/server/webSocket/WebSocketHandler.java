@@ -279,7 +279,6 @@ public class WebSocketHandler {
 
     private void makeMove(String msg, Session session) throws IOException {
         try {
-            //fixme: check to make sure user is in the game and hasn't resigned
             MakeMove moveCommand = new Gson().fromJson(msg, MakeMove.class);
             boolean isValid = false;
             AuthData userInfo = auths.getAuth(moveCommand.getAuthString());
@@ -343,7 +342,8 @@ public class WebSocketHandler {
                         Notification noti = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
                         LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
                         ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
-                        c.broadcast("", notification);
+                        c.broadcast(userInfo.authToken(), notification);
+                        c.clientNotify(userInfo.authToken(), notification);
                         c.broadcast(userInfo.authToken(), noti);
                     } else {
                         ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
