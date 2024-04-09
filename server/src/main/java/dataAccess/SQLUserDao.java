@@ -1,6 +1,6 @@
 package dataAccess;
-import dataAccess.customExceptions.DataAccessException;
-import dataAccess.customExceptions.UnauthorizedException;
+import jsonObjects.customExceptions.DataAccessException;
+import jsonObjects.customExceptions.UnauthorizedException;
 import model.UserData;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 

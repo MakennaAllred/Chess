@@ -1,7 +1,7 @@
 package dataAccess;
 
-import dataAccess.customExceptions.DataAccessException;
-import dataAccess.customExceptions.UnauthorizedException;
+import jsonObjects.customExceptions.DataAccessException;
+import jsonObjects.customExceptions.UnauthorizedException;
 import model.AuthData;
 
 public interface AuthDataAccess {

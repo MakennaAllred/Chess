@@ -1,4 +1,4 @@
-package dataAccess;
+package jsonObjects;
 
 import model.GameData;
 

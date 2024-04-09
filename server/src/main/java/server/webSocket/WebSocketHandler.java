@@ -5,9 +5,9 @@ import chess.ChessMove;
 import chess.ChessPosition;
 import chess.InvalidMoveException;
 import dataAccess.*;
-import dataAccess.customExceptions.BadRequestException;
-import dataAccess.customExceptions.DataAccessException;
-import dataAccess.customExceptions.UnauthorizedException;
+import jsonObjects.customExceptions.BadRequestException;
+import jsonObjects.customExceptions.DataAccessException;
+import jsonObjects.customExceptions.UnauthorizedException;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
@@ -229,7 +229,7 @@ public class WebSocketHandler {
             Resign resignCommand = new Gson().fromJson(msg, Resign.class);
             AuthData userInfo = auths.getAuth(resignCommand.getAuthString());
             GameData gameInfo = games.getGame(resignCommand.gameID);
-            if(Objects.equals(gameOver.get(gameInfo.gameID()), "yes")){
+            if(gameInfo.game().isGameOver){
                 Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Can't resign, game is over");
                 ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
                 c.clientNotify(userInfo.authToken(), notification);
@@ -240,24 +240,26 @@ public class WebSocketHandler {
             while (iterator.hasNext()) {
                 String auth = iterator.next();
                 if (Objects.equals(auth, userInfo.authToken())) {
-                    gameOver.put(gameInfo.gameID(), "yes");
+//                    gameOver.put(gameInfo.gameID(), "yes");
+                    gameInfo.game().setGameOver(true);
+                    games.updateGame(gameInfo.game(),gameInfo.gameID());
                     String black = gameInfo.blackUsername();
                     String white = gameInfo.whiteUsername();
-                    if (Objects.equals(userInfo.username(), white)) {
-                        games.removeUser(gameInfo, ChessGame.TeamColor.WHITE);
-
-                    }
-                    else if (Objects.equals(userInfo.username(), black)) {
-                        games.removeUser(gameInfo, ChessGame.TeamColor.BLACK);
-                    }
-                    else{
+//                    if (Objects.equals(userInfo.username(), white)) {
+//                        games.removeUser(gameInfo, ChessGame.TeamColor.WHITE);
+//
+//                    }
+//                    else if (Objects.equals(userInfo.username(), black)) {
+//                        games.removeUser(gameInfo, ChessGame.TeamColor.BLACK);
+//                    }
+                    if(!Objects.equals(userInfo.username(), black) && !Objects.equals(userInfo.username(), white)){
                         Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Can't resign as observer");
                         ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
                         c.clientNotify(userInfo.authToken(), notification);
                         break;
                     }
                     iterator.remove();
-                    gameInfo = games.getGame(resignCommand.gameID);
+//                    gameInfo = games.getGame(resignCommand.gameID);
                     String message = String.format("%s resigned from the game. The game is over", userInfo.username());
                     Notification notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
                     ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
@@ -283,8 +285,9 @@ public class WebSocketHandler {
             boolean isValid = false;
             AuthData userInfo = auths.getAuth(moveCommand.getAuthString());
             GameData gameInfo = games.getGame(moveCommand.gameID);
-            if(Objects.equals(gameOver.get(gameInfo.gameID()), "yes")){
-                Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Can't resign, game is over");
+//            System.out.println(gameInfo.game());
+            if(gameInfo.game().isGameOver){
+                Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Can't make move, game is over");
                 ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
                 c.clientNotify(userInfo.authToken(), notification);
                 return;

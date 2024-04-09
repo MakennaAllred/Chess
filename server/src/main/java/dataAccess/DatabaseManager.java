@@ -1,6 +1,6 @@
 package dataAccess;
 
-import dataAccess.customExceptions.DataAccessException;
+import jsonObjects.customExceptions.DataAccessException;
 
 import java.sql.*;
 import java.util.ArrayList;

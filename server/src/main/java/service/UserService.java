@@ -1,10 +1,10 @@
 package service;
 
 import dataAccess.*;
-import dataAccess.customExceptions.AlreadyTakenException;
-import dataAccess.customExceptions.BadRequestException;
-import dataAccess.customExceptions.DataAccessException;
-import dataAccess.customExceptions.UnauthorizedException;
+import jsonObjects.customExceptions.AlreadyTakenException;
+import jsonObjects.customExceptions.BadRequestException;
+import jsonObjects.customExceptions.DataAccessException;
+import jsonObjects.customExceptions.UnauthorizedException;
 import model.AuthData;
 import model.UserData;
 

@@ -47,6 +47,7 @@ public class Repl implements NotificationHandler {
 
             }
             catch(Throwable e){
+                e.printStackTrace();
                 System.out.print(e.getMessage());
             }
         }

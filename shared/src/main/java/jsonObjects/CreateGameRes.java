@@ -1,4 +1,4 @@
-package dataAccess;
+package jsonObjects;
 
 public record CreateGameRes (int gameID){
 }

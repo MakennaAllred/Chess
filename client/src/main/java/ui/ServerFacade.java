@@ -1,18 +1,12 @@
 package ui;
 
-import chess.ChessGame;
-import chess.ChessMove;
 import com.google.gson.Gson;
-import dataAccess.CreateGameRes;
-import dataAccess.JoinGameReq;
-import dataAccess.ListGamesRes;
-import dataAccess.customExceptions.DataAccessException;
+import jsonObjects.CreateGameRes;
+import jsonObjects.JoinGameReq;
+import jsonObjects.ListGamesRes;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import ui.webSocket.NotificationHandler;
-import ui.webSocket.WebSocketFacade;
-import webSocketMessages.userCommands.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,8 +19,8 @@ public class ServerFacade {
 
 
 
-    public ServerFacade(String port){
-        this.serverURL = "http://localhost:" + port;
+    public ServerFacade(String serverURL){
+        this.serverURL = serverURL;
         //usergame commands and pass to websocket facade
     }
 

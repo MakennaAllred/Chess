@@ -2,7 +2,13 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.*;
-import dataAccess.customExceptions.*;
+import jsonObjects.CreateGameRes;
+import jsonObjects.JoinGameReq;
+import jsonObjects.ListGamesRes;
+import jsonObjects.customExceptions.*;
+import jsonObjects.customExceptions.BadRequestException;
+import jsonObjects.customExceptions.DataAccessException;
+import jsonObjects.customExceptions.UnauthorizedException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;

@@ -1,7 +1,6 @@
 package ui;
 
-import dataAccess.customExceptions.DataAccessException;
-import model.AuthData;
+
 import model.UserData;
 
 import java.util.Arrays;

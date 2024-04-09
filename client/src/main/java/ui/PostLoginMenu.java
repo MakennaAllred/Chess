@@ -1,13 +1,10 @@
 package ui;
 
 import chess.ChessGame;
-import dataAccess.CreateGameRes;
-import dataAccess.JoinGameReq;
-import dataAccess.ListGamesRes;
-import dataAccess.customExceptions.DataAccessException;
-import model.AuthData;
+import jsonObjects.CreateGameRes;
+import jsonObjects.JoinGameReq;
+import jsonObjects.ListGamesRes;
 import model.GameData;
-import model.UserData;
 import ui.webSocket.WebSocketFacade;
 
 import java.util.Arrays;

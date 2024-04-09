@@ -1,4 +1,4 @@
-package dataAccess.customExceptions;
+package jsonObjects.customExceptions;
 
 /**
  * Indicates there was an error connecting to the database

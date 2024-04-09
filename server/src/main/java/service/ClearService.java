@@ -1,8 +1,8 @@
 package service;
 
 import dataAccess.*;
-import dataAccess.customExceptions.DataAccessException;
-import dataAccess.customExceptions.UnauthorizedException;
+import jsonObjects.customExceptions.DataAccessException;
+import jsonObjects.customExceptions.UnauthorizedException;
 
 public class ClearService {
     private final AuthDataAccess authDao;
