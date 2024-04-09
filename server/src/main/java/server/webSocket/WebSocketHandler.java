@@ -199,9 +199,9 @@ public class WebSocketHandler {
 
     }
 
-    ;
 
     private void resign(String msg, Session session) {
+        String member = "";
         //server marks game as game over(no more moves can be made)
         try {
             Resign resignCommand = new Gson().fromJson(msg, Resign.class);
@@ -221,17 +221,23 @@ public class WebSocketHandler {
                         games.removeUser(gameInfo, ChessGame.TeamColor.BLACK);
 
                     }
+                    member = auth;
                     gameInfo = games.getGame(resignCommand.gameID);
                     String message = String.format("%s resigned from the game. The game is over", userInfo.username());
                     Notification notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                    connections.remove(userInfo.authToken());
                     connections.broadcast(userInfo.authToken(), notification);
-                    clientsInGame.remove(userInfo.authToken());
-                    gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
+                    connections.remove(userInfo.authToken());
+                    connections.clientNotify(userInfo.authToken(),notification);
+//                    clientsInGame.removeIf(auth -> Objects.equals(auth, userInfo.authToken()));
+//                    gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
                 } else {
                     Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Bad authtoken");
                     connections.clientNotify(resignCommand.getAuthString(), notification);
                 }
+            }
+            if(member != null) {
+                clientsInGame.remove(member);
+                gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
             }
             //game is updated in db
         } catch (UnauthorizedException | IOException | BadRequestException | DataAccessException e) {
@@ -240,7 +246,7 @@ public class WebSocketHandler {
 
     }
 
-    ;
+
 
     private void makeMove(String msg, Session session) {
         try {
