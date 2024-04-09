@@ -93,38 +93,10 @@ public class GenerateBoard {
     }
 
     public static void drawChessBoard(PrintStream out, ChessBoard board, ChessGame.TeamColor perspective) {
-        if (perspective == ChessGame.TeamColor.BLACK) {
-            for (int squareRow = 1; squareRow < 9; ++squareRow) {
-                int view = (perspective == ChessGame.TeamColor.BLACK) ? squareRow : 9 - squareRow;
-                //black: outer: ascending inner: descending
-                //white: outer: des
-                //white: view = 9-squarerow, black = squarerow;
-                boolean isWhiteSquare = (squareRow % 2 == 1);
-                setGray(out);
-                out.print(" " + squareRow + " ");
-                for (int boardCol = 1; boardCol < 9; ++boardCol) {
-                    if (isWhiteSquare) {
-                        setWhite(out);
-                    } else {
-                        setBlack(out);
-                    }
-                    ChessPiece current = board.getPiece(new ChessPosition(squareRow, boardCol));
-                    printPiece(out, current);
-                    setBlack(out);
-                    isWhiteSquare = !isWhiteSquare;
-                }
-                setGray(out);
-                out.print(" " + squareRow + " ");
-                setBlack(out);
-                out.println();
-                setBlack(out);
-            }
-
-        }else {
-            for (int squareRow = 8; squareRow > 0; --squareRow) {
-            //black: outer: ascending inner: descending
-            //white: outer: des
-            //white: view = 9-squarerow, black = squarerow;
+        int startRow = (perspective == ChessGame.TeamColor.BLACK) ? 1 : 8;
+        int endRow = (perspective == ChessGame.TeamColor.BLACK) ? 8 : 1;
+        int rowIncr = (perspective == ChessGame.TeamColor.BLACK) ? 1 : -1;
+        for (int squareRow = startRow; perspective == ChessGame.TeamColor.BLACK ? squareRow < endRow: squareRow > endRow; squareRow += rowIncr) {
             boolean isWhiteSquare = (squareRow % 2 == 1);
             setGray(out);
             out.print(" " + squareRow + " ");
@@ -144,68 +116,43 @@ public class GenerateBoard {
             setBlack(out);
             out.println();
             setBlack(out);
-            }
         }
     }
+
+
 
     public static void printPiece(PrintStream out, ChessPiece piece){
         if(piece == null){
             out.print(EMPTY);
         }
-        else {
-            ChessGame.TeamColor col = piece.getTeamColor();
-            ChessPiece.PieceType type = piece.getPieceType();
-            if (col == ChessGame.TeamColor.WHITE) {
-                if (type == ChessPiece.PieceType.ROOK) {
-                    out.print(SET_TEXT_COLOR_MAGENTA);
-                    out.print(WHITE_ROOK);
-                }
-                if (type == ChessPiece.PieceType.BISHOP) {
-                    out.print(SET_TEXT_COLOR_MAGENTA);
-                    out.print(WHITE_BISHOP);
-                }
-                if (type == ChessPiece.PieceType.KNIGHT) {
-                    out.print(SET_TEXT_COLOR_MAGENTA);
-                    out.print(WHITE_KNIGHT);
-                }
-                if (type == ChessPiece.PieceType.QUEEN) {
-                    out.print(SET_TEXT_COLOR_MAGENTA);
-                    out.print(WHITE_QUEEN);
-                }
-                if (type == ChessPiece.PieceType.KING) {
-                    out.print(SET_TEXT_COLOR_MAGENTA);
-                    out.print(WHITE_KING);
-                }
-                if (type == ChessPiece.PieceType.PAWN) {
-                    out.print(SET_TEXT_COLOR_MAGENTA);
-                    out.print(WHITE_PAWN);
-                }
-            } else {
-                if (type == ChessPiece.PieceType.ROOK) {
-                    out.print(SET_TEXT_COLOR_BLUE);
-                    out.print(BLACK_ROOK);
-                }
-                if (type == ChessPiece.PieceType.BISHOP) {
-                    out.print(SET_TEXT_COLOR_BLUE);
-                    out.print(BLACK_BISHOP);
-                }
-                if (type == ChessPiece.PieceType.KNIGHT) {
-                    out.print(SET_TEXT_COLOR_BLUE);
-                    out.print(BLACK_KNIGHT);
-                }
-                if (type == ChessPiece.PieceType.QUEEN) {
-                    out.print(SET_TEXT_COLOR_BLUE);
-                    out.print(BLACK_QUEEN);
-                }
-                if (type == ChessPiece.PieceType.KING) {
-                    out.print(SET_TEXT_COLOR_BLUE);
-                    out.print(BLACK_KING);
-                }
-                if (type == ChessPiece.PieceType.PAWN) {
-                    out.print(SET_TEXT_COLOR_BLUE);
-                    out.print(BLACK_PAWN);
-                }
+        ChessGame.TeamColor teamColor = piece.getTeamColor();
+        ChessPiece.PieceType pieceType = piece.getPieceType();
+        String pieceSymbol = "";
+        String textColor = " ";
+        switch(pieceType) {
+            case ROOK:
+                pieceSymbol = (teamColor == ChessGame.TeamColor.WHITE) ? WHITE_ROOK : BLACK_ROOK;
+                textColor = (teamColor == ChessGame.TeamColor.WHITE) ? SET_TEXT_COLOR_MAGENTA : SET_TEXT_COLOR_BLUE;
+                break;
+            case KNIGHT:
+                pieceSymbol = (teamColor == ChessGame.TeamColor.WHITE) ? WHITE_KNIGHT : BLACK_KNIGHT;
+                textColor = (teamColor == ChessGame.TeamColor.WHITE) ? SET_TEXT_COLOR_MAGENTA : SET_TEXT_COLOR_BLUE;
+                break;
+            case BISHOP:
+                pieceSymbol = (teamColor == ChessGame.TeamColor.WHITE) ? WHITE_BISHOP : BLACK_BISHOP;
+                textColor = (teamColor == ChessGame.TeamColor.WHITE) ? SET_TEXT_COLOR_MAGENTA : SET_TEXT_COLOR_BLUE;
+                break;
+            case QUEEN:
+                pieceSymbol = (teamColor == ChessGame.TeamColor.WHITE) ? WHITE_QUEEN : BLACK_QUEEN;
+                textColor = (teamColor == ChessGame.TeamColor.WHITE) ? SET_TEXT_COLOR_MAGENTA : SET_TEXT_COLOR_BLUE;
+                break;
+            case KING:
+                pieceSymbol = (teamColor == ChessGame.TeamColor.WHITE) ? WHITE_KING : BLACK_KING;
+                textColor = (teamColor == ChessGame.TeamColor.WHITE) ? SET_TEXT_COLOR_MAGENTA : SET_TEXT_COLOR_BLUE;
+                break;
             }
-        }
+        out.print(textColor);
+        out.print(pieceSymbol);
+
     }
 }

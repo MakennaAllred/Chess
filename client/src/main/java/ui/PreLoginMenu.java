@@ -25,36 +25,6 @@ public static String port;
         }
     }
 
-    public static String help() {
-        if (Repl.state == State.SIGNEDOUT) {
-            System.out.println("""
-                    - Register <username password email>
-                    - Login <username password>
-                    - Quit
-                    """);
-            return """
-                    - Register <username password email>
-                    - Login <username password>
-                    - Quit
-                    """;
-        }
-        System.out.println("""
-                - Create <gameName>
-                - Join <PlayerColor gameID>
-                - List
-                - Logout
-                - Clear
-                - Quit
-                """);
-        return """
-                - Create <gameName>
-                - Join <PlayerColor gameID>
-                - List
-                - Logout
-                - Clear
-                - Quit
-                """;
-    }
 
     public static String login(String... params) {
         try {
@@ -67,7 +37,7 @@ public static String port;
                         Repl.auth = new ServerFacade(PreLoginMenu.port).login(user);
                         Repl.username = Repl.auth.username();
                         Repl.state = State.SIGNEDIN;
-                        help();
+                        Repl.help();
                         return Repl.auth.authToken();
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
@@ -95,7 +65,7 @@ public static String port;
                         Repl.auth = new ServerFacade(PreLoginMenu.port).register(user);
                         Repl.username = Repl.auth.username();
                         Repl.state = State.SIGNEDIN;
-                        help();
+                        Repl.help();
                         return Repl.auth.authToken();
                     } catch (Exception e) {
                         System.out.println(e.getMessage());

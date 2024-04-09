@@ -24,43 +24,14 @@ public static String port;
                 case "logout" -> logout(params);
                 case "clear" -> clearAll(params);
                 case "quit" -> "quit";
-                default -> help();
+                default -> Repl.help();
             };
         } catch (Exception e){
             return e.getMessage();
         }
     }
 
-    public static String help(){
-        if(Repl.state == State.SIGNEDOUT){
-            System.out.println("""
-                    - Register <username password email>
-                    - Login <username password>
-                    - Quit
-                    """);
-            return """
-                    - Register <username password email>
-                    - Login <username password>
-                    - Quit
-                    """;
-        }
-        System.out.println("""
-                - Create <gameName>
-                - Join <PlayerColor gameID>
-                - List
-                - Logout
-                - Clear
-                - Quit
-                """);
-        return """
-                - Create <gameName>
-                - Join <PlayerColor gameID>
-                - List
-                - Logout
-                - Clear
-                - Quit
-                """;
-    }
+
     public static String joinGame(WebSocketFacade socket, String line, String... params){
         try {
             if (params.length >= 1) {
@@ -91,7 +62,7 @@ public static String port;
 //                    GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK);
                     Repl.state = State.INGAME;
                     System.out.println("Joined game");
-                    System.out.print(help());
+                    System.out.print(Repl.help());
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
@@ -150,7 +121,7 @@ public static String port;
             new ServerFacade(PostLoginMenu.port).logout(Repl.auth.authToken());
             Repl.state = State.SIGNEDOUT;
             System.out.println("Logged out successfully");
-            System.out.print(help());
+            System.out.print(Repl.help());
         }catch(Exception e){
             System.out.println(e.getMessage());
         }
@@ -161,7 +132,7 @@ public static String port;
             new ServerFacade(PostLoginMenu.port).deleteAll(Repl.auth.authToken());
             Repl.state = State.SIGNEDOUT;
             System.out.println("Everything cleared");
-            System.out.print(help());
+            System.out.print(Repl.help());
         }catch(Exception e){
             System.out.println(e.getMessage());
         }

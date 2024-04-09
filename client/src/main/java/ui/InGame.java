@@ -23,44 +23,13 @@ public class InGame {
                 case "makeMove" -> makeMove(socket, input);
                 case "resign" -> resign(socket, input);
                 case "legalMoves" -> highlightLegalMoves(input);
-                default -> help();
+                default -> Repl.help();
             };
         } catch (Exception e) {
             return e.getMessage();
         }
     }
 
-
-    public static String help() {
-        if (Repl.state == State.SIGNEDOUT) {
-            System.out.println("""
-                    - Register <username password email>
-                    - Login <username password>
-                    - Quit
-                    """);
-            return """
-                    - Register <username password email>
-                    - Login <username password>
-                    - Quit
-                    """;
-        }
-        System.out.println("""
-                - Create <gameName>
-                - Join <PlayerColor gameID>
-                - List
-                - Logout
-                - Clear
-                - Quit
-                """);
-        return """
-                - Create <gameName>
-                - Join <PlayerColor gameID>
-                - List
-                - Logout
-                - Clear
-                - Quit
-                """;
-    }
 
     public static String redrawBoard(String input){
         GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE);

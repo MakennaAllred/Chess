@@ -56,7 +56,7 @@ public class Repl implements NotificationHandler {
 
     private void printPrompt(){System.out.print("\n" + ">>>");}
 
-    public String help(){
+    public static String help(){
         if(state == State.SIGNEDOUT){
             return """
                     - Register <username password email>
