@@ -8,8 +8,11 @@ import model.GameData;
 import ui.webSocket.WebSocketFacade;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PostLoginMenu {
+    static Map<Integer, GameData> listOfGames = new HashMap<>();
 public static String port;
     public static Object eval(String port, String input, WebSocketFacade socket){
         PostLoginMenu.port = port;
@@ -42,24 +45,28 @@ public static String port;
                 if(playerColor == null){
                     InGame.state = InGameStates.OBSERVER;
                     socket.joinObserverWS(Repl.auth.authToken(),gameID);
-                    Repl.state = State.INGAME;
+                    InGame.game = listOfGames.get(gameID);
+
                 }
                 else {
                     InGame.state = InGameStates.PLAYER;
                     if (playerColor.equals("WHITE")) {
                         socket.joinPlayerWs(Repl.auth.authToken(), gameID, ChessGame.TeamColor.WHITE);
-                        Repl.state = State.INGAME;
+                        InGame.game = listOfGames.get(gameID);
+
                     }
                     else{
                         socket.joinPlayerWs(Repl.auth.authToken(), gameID, ChessGame.TeamColor.BLACK);
-                        Repl.state = State.INGAME;
+                        InGame.game = listOfGames.get(gameID);
+
                     }
                 }
 
                 try {
                     new ServerFacade(PostLoginMenu.port).joinGame(Repl.auth.authToken(), body);
-//                    GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE);
-//                    GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK);
+                    GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK, InGame.game.game().getBoard(), null, null);
+                    System.out.println();
+                    GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE, InGame.game.game().getBoard(), null, null);
                     Repl.state = State.INGAME;
                     System.out.println("Joined game");
                     Repl.help();
@@ -81,10 +88,11 @@ public static String port;
         try{
             if(params.length>=1){
                 String gameName = params[0];
-                GameData gameBody = new GameData(0,null,null,gameName,null);
+                GameData gameBody = new GameData(0,null,null,gameName,new ChessGame());
                 try{
                     CreateGameRes game = new ServerFacade(PostLoginMenu.port).createGame(Repl.auth.authToken(),gameBody);
                     System.out.print("Game " + game.gameID() + " created");
+                    listOfGames.put(game.gameID(),gameBody);
                     return game.gameID();
                 }catch (Exception e){
                     System.out.print(e.getMessage());
@@ -98,6 +106,7 @@ public static String port;
     }
 
     public static ListGamesRes listGames(String...params){
+        listOfGames = new HashMap<>();
         try{
             ListGamesRes games = new ServerFacade(PostLoginMenu.port).listGames(Repl.auth.authToken());
             //for each games.games(), don't print the board
@@ -107,6 +116,7 @@ public static String port;
                 System.out.print("Black Username: " + game.blackUsername() + " ");
                 System.out.print("Game name: " + game.gameName());
                 System.out.print("\n");
+                listOfGames.put(game.gameID(), game);
             }
             return games;
         }catch(Exception e){

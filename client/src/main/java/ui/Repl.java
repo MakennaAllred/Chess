@@ -17,7 +17,6 @@ public class Repl implements NotificationHandler {
     public static AuthData auth;
     public static String username;
     public static String serverURL;
-    public static ChessGame game;
     public static int gameID;
     public WebSocketFacade socket;
 
@@ -43,6 +42,7 @@ public class Repl implements NotificationHandler {
                     res = PostLoginMenu.eval(serverURL, line, socket);
                 }else{
                     res = InGame.eval(serverURL,line, socket);
+                    Repl.help();
                 }
 
             }
@@ -80,11 +80,11 @@ public class Repl implements NotificationHandler {
         }else {
             String in =
                 """
-                - RedrawBoard
+                - Redraw
                 - Leave
-                - MakeMove
+                - MakeMove (start, end)
                 - Resign
-                - LegalMoves
+                - Highlight (a1)
                 - Quit
                 """;
             System.out.println(in);

@@ -1,12 +1,11 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static ui.EscapeSequences.*;
 
@@ -14,31 +13,17 @@ public class GenerateBoard {
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private static final int LINE_WIDTH_IN_CHARS = 1;
 
-    public static void main (String[] args){
-        generateBoard(ChessGame.TeamColor.WHITE);
-        System.out.println();
-        generateBoard(ChessGame.TeamColor.BLACK);
-    }
 
-    public static void generateBoard(ChessGame.TeamColor color){
+    public static void generateBoard(ChessGame.TeamColor color, ChessBoard board, Collection<ChessMove> valids, ChessPosition start){
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
-        if(color == ChessGame.TeamColor.WHITE) {
-            ChessGame.TeamColor perspective = ChessGame.TeamColor.WHITE;
-            drawHeaders(out, perspective);
-            ChessBoard board = new ChessBoard();
+        drawHeaders(out,color);
+        if(board == null){
+            board = new ChessBoard();
             board.resetBoard();
-            drawChessBoard(out, board, perspective);
-            drawHeaders(out, perspective);
         }
-        else{
-            ChessGame.TeamColor perspective = ChessGame.TeamColor.BLACK;
-            drawHeaders(out,perspective);
-            ChessBoard board = new ChessBoard();
-            board.resetBoard();
-            drawChessBoard(out, board, perspective);
-            drawHeaders(out,perspective);
-        }
+        drawChessBoard(out, board, color,valids, start);
+        drawHeaders(out,color);
     }
 
     public static void drawHeaders(PrintStream out, ChessGame.TeamColor perspective){
@@ -93,18 +78,60 @@ public class GenerateBoard {
         out.print(SET_TEXT_COLOR_LIGHT_GREY);
     }
 
-    public static void drawChessBoard(PrintStream out, ChessBoard board, ChessGame.TeamColor perspective) {
+    private static void setOrange(PrintStream out){
+        out.print(BG_COLOR_DARK_ORANGE);
+    }
+
+    private static void setYellow(PrintStream out){
+        out.print(BG_COLOR_LIGHT_ORANGE);
+    }
+
+    public static boolean shouldHighlight(Collection<ChessPosition> validEnds, int row, int col){
+        if(validEnds != null) {
+            for (ChessPosition pos : validEnds) {
+                if (pos.getRow() == row && pos.getColumn() == col) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+    public static boolean isStart(ChessPosition start, int row, int col){
+        if(start != null){
+            if(start.getRow() == row && start.getColumn() == col){
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+
+    public static void drawChessBoard(PrintStream out, ChessBoard board, ChessGame.TeamColor perspective, Collection<ChessMove> valids, ChessPosition start) {
         int startRow = (perspective == ChessGame.TeamColor.BLACK) ? 1 : 8;
         int endRow = (perspective == ChessGame.TeamColor.BLACK) ? 8 : 1;
         int rowIncr = (perspective == ChessGame.TeamColor.BLACK) ? 1 : -1;
+        Collection<ChessPosition> ends = new ArrayList<>();
+        if(valids != null) {
+            for (ChessMove move : valids) {
+                ends.add(move.getEndPosition());
+            }
+        }
         for (int squareRow = startRow; perspective == ChessGame.TeamColor.BLACK ? squareRow <= endRow: squareRow >= endRow; squareRow += rowIncr) {
             boolean isWhiteSquare = (squareRow % 2 == 1);
             setGray(out);
             out.print(" " + squareRow + " ");
             for (int boardCol = 1; boardCol < 9; ++boardCol) {
-                if (isWhiteSquare) {
+                if (shouldHighlight(ends,squareRow,boardCol)) {
+                    setOrange(out);
+                }else if(isStart(start,squareRow,boardCol)){
+                    setYellow(out);
+                }
+                else if (isWhiteSquare){
                     setWhite(out);
-                } else {
+                }else{
                     setBlack(out);
                 }
                 ChessPiece current = board.getPiece(new ChessPosition(squareRow, boardCol));
@@ -112,6 +139,7 @@ public class GenerateBoard {
                 setBlack(out);
                 isWhiteSquare = !isWhiteSquare;
             }
+
             setGray(out);
             out.print(" " + squareRow + " ");
             setBlack(out);
@@ -119,6 +147,9 @@ public class GenerateBoard {
             setBlack(out);
         }
     }
+
+
+
 
 
 
