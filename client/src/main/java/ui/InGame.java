@@ -51,7 +51,7 @@ public class InGame {
             int col = params[0].toLowerCase().charAt(0) - 'a' + 1;
             int row = Integer.parseInt(params[0].substring(1));
             ChessPosition start = new ChessPosition(row, col);
-            int col1 = params[0].toLowerCase().charAt(0) - 'a' + 1;
+            int col1 = params[1].toLowerCase().charAt(0) - 'a' + 1;
             int row1 = Integer.parseInt(params[1].substring(1));
             ChessPosition end = new ChessPosition(row1, col1);
             Collection<ChessMove> valids =  game.game().validMoves(start);
@@ -88,7 +88,11 @@ public class InGame {
             ChessPosition start = new ChessPosition(row, col);
             Collection<ChessMove> valids = game.game().validMoves(start);
             ChessBoard board = game.game().getBoard();
-            GenerateBoard.generateBoard(game.game().getTeamTurn(), board, valids,start);
+            if (Repl.username == game.whiteUsername()) {
+                GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE, board, valids, start);
+            }else{
+                GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK, board, valids, start);
+            }
             if(valids == null){
                 System.out.println("No valid moves for this piece");
             }

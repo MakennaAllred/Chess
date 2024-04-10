@@ -12,6 +12,7 @@ import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import com.google.gson.Gson;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import webSocketMessages.serverMessages.Error;
@@ -43,7 +44,7 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String msg) throws IOException {
-        System.out.println("received message");
+//        System.out.println("received message");
         UserGameCommand userGameCommand = new Gson().fromJson(msg, UserGameCommand.class);
         switch (userGameCommand.getCommandType()) {
             case JOIN_PLAYER -> joinPlayer(msg, session);
@@ -53,15 +54,18 @@ public class WebSocketHandler {
             case MAKE_MOVE -> makeMove(msg, session);
         }
     }
-    public void clientsInGameCheck(String authToken, int gameID){
-        List<String> clientsInGame = gamesAndUsers.get(gameID);
+
+    @OnWebSocketError
+    public void onError(Session session, Throwable throwable){
+        System.err.println("Error in WS" + throwable.getMessage());
+        throwable.printStackTrace();
+    }
+
+    public boolean clientsInGameCheck(List<String> clientsInGame){
         if(clientsInGame != null) {
-            clientsInGame.add((authToken));
+            return true;
         }
-        else{
-            clientsInGame = new ArrayList<>();
-            clientsInGame.add(authToken);
-        }
+       return false;
     }
     private void joinPlayer(String msg, Session session) {
         try {
@@ -83,8 +87,13 @@ public class WebSocketHandler {
                         if (Objects.equals(auth.username(), gameInfo.whiteUsername())) {
                             String message = String.format("%s joined as %s player", auth.username(), join.playerColor);
                             LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
-                            clientsInGameCheck(authToken,gameInfo.gameID());
-                            List<String> clientsInGame = gamesAndUsers.get(gameInfo.gameID());
+                            List<String>clientsInGame =  gamesAndUsers.get(gameInfo.gameID());
+                            if (clientsInGameCheck(clientsInGame)){
+                                clientsInGame = gamesAndUsers.get(gameInfo.gameID());
+                            }else{
+                                clientsInGame = new ArrayList<>();
+                            }
+                            clientsInGame.add(authToken);
                             gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
                             Notification notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
                             ConnectionsManager c = gameOrganizer.get(join.gameID);
@@ -101,7 +110,12 @@ public class WebSocketHandler {
                             String message = String.format("%s joined as %s player", auth.username(), join.playerColor);
                             LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
                             List<String> clientsInGame = gamesAndUsers.get(gameInfo.gameID());
-                            clientsInGameCheck(authToken, gameInfo.gameID());
+                            if (clientsInGameCheck(clientsInGame)){
+                                clientsInGame = gamesAndUsers.get(gameInfo.gameID());
+                            }else{
+                                clientsInGame = new ArrayList<>();
+                            }
+                            clientsInGame.add(authToken);
                             gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
                             ConnectionsManager c = gameOrganizer.get(join.gameID);
                             c.clientNotify(auth.authToken(), notification);
@@ -149,13 +163,12 @@ public class WebSocketHandler {
                     c.clientNotify(userInfo.authToken(), notification);
                     Notification notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
                     List<String> clientsInGame = gamesAndUsers.get(gameInfo.gameID());
-                    if(clientsInGame != null) {
-                        clientsInGame.add((userInfo.authToken()));
-                    }
-                    else{
+                    if (clientsInGameCheck(clientsInGame)){
+                        clientsInGame = gamesAndUsers.get(gameInfo.gameID());
+                    }else{
                         clientsInGame = new ArrayList<>();
-                        clientsInGame.add(userInfo.authToken());
                     }
+                    clientsInGame.add(observerCom.getAuthString());
                     gamesAndUsers.put(gameInfo.gameID(), clientsInGame);
                     c.broadcast(userInfo.authToken(), notif);
                 }else{
