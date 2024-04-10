@@ -16,6 +16,7 @@ public class GenerateBoard {
 
     public static void main (String[] args){
         generateBoard(ChessGame.TeamColor.WHITE);
+        System.out.println();
         generateBoard(ChessGame.TeamColor.BLACK);
     }
 
@@ -96,7 +97,7 @@ public class GenerateBoard {
         int startRow = (perspective == ChessGame.TeamColor.BLACK) ? 1 : 8;
         int endRow = (perspective == ChessGame.TeamColor.BLACK) ? 8 : 1;
         int rowIncr = (perspective == ChessGame.TeamColor.BLACK) ? 1 : -1;
-        for (int squareRow = startRow; perspective == ChessGame.TeamColor.BLACK ? squareRow < endRow: squareRow > endRow; squareRow += rowIncr) {
+        for (int squareRow = startRow; perspective == ChessGame.TeamColor.BLACK ? squareRow <= endRow: squareRow >= endRow; squareRow += rowIncr) {
             boolean isWhiteSquare = (squareRow % 2 == 1);
             setGray(out);
             out.print(" " + squareRow + " ");
@@ -124,33 +125,38 @@ public class GenerateBoard {
     public static void printPiece(PrintStream out, ChessPiece piece){
         if(piece == null){
             out.print(EMPTY);
+            return;
         }
         ChessGame.TeamColor teamColor = piece.getTeamColor();
         ChessPiece.PieceType pieceType = piece.getPieceType();
         String pieceSymbol = "";
-        String textColor = " ";
-        switch(pieceType) {
-            case ROOK:
+        String textColor = switch (pieceType) {
+            case ROOK -> {
                 pieceSymbol = (teamColor == ChessGame.TeamColor.WHITE) ? WHITE_ROOK : BLACK_ROOK;
-                textColor = (teamColor == ChessGame.TeamColor.WHITE) ? SET_TEXT_COLOR_MAGENTA : SET_TEXT_COLOR_BLUE;
-                break;
-            case KNIGHT:
-                pieceSymbol = (teamColor == ChessGame.TeamColor.WHITE) ? WHITE_KNIGHT : BLACK_KNIGHT;
-                textColor = (teamColor == ChessGame.TeamColor.WHITE) ? SET_TEXT_COLOR_MAGENTA : SET_TEXT_COLOR_BLUE;
-                break;
-            case BISHOP:
-                pieceSymbol = (teamColor == ChessGame.TeamColor.WHITE) ? WHITE_BISHOP : BLACK_BISHOP;
-                textColor = (teamColor == ChessGame.TeamColor.WHITE) ? SET_TEXT_COLOR_MAGENTA : SET_TEXT_COLOR_BLUE;
-                break;
-            case QUEEN:
-                pieceSymbol = (teamColor == ChessGame.TeamColor.WHITE) ? WHITE_QUEEN : BLACK_QUEEN;
-                textColor = (teamColor == ChessGame.TeamColor.WHITE) ? SET_TEXT_COLOR_MAGENTA : SET_TEXT_COLOR_BLUE;
-                break;
-            case KING:
-                pieceSymbol = (teamColor == ChessGame.TeamColor.WHITE) ? WHITE_KING : BLACK_KING;
-                textColor = (teamColor == ChessGame.TeamColor.WHITE) ? SET_TEXT_COLOR_MAGENTA : SET_TEXT_COLOR_BLUE;
-                break;
+                yield (teamColor == ChessGame.TeamColor.WHITE) ? SET_TEXT_COLOR_MAGENTA : SET_TEXT_COLOR_BLUE;
             }
+            case KNIGHT -> {
+                pieceSymbol = (teamColor == ChessGame.TeamColor.WHITE) ? WHITE_KNIGHT : BLACK_KNIGHT;
+                yield (teamColor == ChessGame.TeamColor.WHITE) ? SET_TEXT_COLOR_MAGENTA : SET_TEXT_COLOR_BLUE;
+            }
+            case BISHOP -> {
+                pieceSymbol = (teamColor == ChessGame.TeamColor.WHITE) ? WHITE_BISHOP : BLACK_BISHOP;
+                yield (teamColor == ChessGame.TeamColor.WHITE) ? SET_TEXT_COLOR_MAGENTA : SET_TEXT_COLOR_BLUE;
+            }
+            case QUEEN -> {
+                pieceSymbol = (teamColor == ChessGame.TeamColor.WHITE) ? WHITE_QUEEN : BLACK_QUEEN;
+                yield (teamColor == ChessGame.TeamColor.WHITE) ? SET_TEXT_COLOR_MAGENTA : SET_TEXT_COLOR_BLUE;
+            }
+            case KING -> {
+                pieceSymbol = (teamColor == ChessGame.TeamColor.WHITE) ? WHITE_KING : BLACK_KING;
+                yield (teamColor == ChessGame.TeamColor.WHITE) ? SET_TEXT_COLOR_MAGENTA : SET_TEXT_COLOR_BLUE;
+            }
+            case PAWN -> {
+                pieceSymbol = (teamColor == ChessGame.TeamColor.WHITE) ? WHITE_PAWN : BLACK_PAWN;
+                yield (teamColor == ChessGame.TeamColor.WHITE) ? SET_TEXT_COLOR_MAGENTA : SET_TEXT_COLOR_BLUE;
+            }
+            default -> " ";
+        };
         out.print(textColor);
         out.print(pieceSymbol);
 

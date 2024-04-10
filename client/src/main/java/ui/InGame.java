@@ -18,11 +18,12 @@ public class InGame {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "redraw" -> redrawBoard(input);
-                case "leave" -> leave(socket, params);
-                case "makeMove" -> makeMove(socket, input);
-                case "resign" -> resign(socket, input);
+                case "redraw" -> redrawBoard();
+                case "leave" -> leave(socket);
+                case "makemove" -> makeMove(socket, input);
+                case "resign" -> resign(socket);
                 case "legalMoves" -> highlightLegalMoves(input);
+                case "quit" -> "quit";
                 default -> Repl.help();
             };
         } catch (Exception e) {
@@ -31,16 +32,16 @@ public class InGame {
     }
 
 
-    public static String redrawBoard(String input){
+    public static String redrawBoard(){
         GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE);
         GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK);
         return "board drawn";
     }
 
-    public static String leave(WebSocketFacade socket, String...params){
+    public static String leave(WebSocketFacade socket){
         //if observing delete user from both hashmaps and go back to the logged in menu
-        socket.leave(Repl.auth.authToken(),Repl.gameID);
         Repl.state = State.SIGNEDIN;
+        socket.leave(Repl.auth.authToken(),Repl.gameID);
         return "left";
     }
     public static String makeMove(WebSocketFacade socket, String... params){
@@ -50,7 +51,7 @@ public class InGame {
         //board updates, and notifies everyone involved in the game
         return "made move";
     }
-    public static String resign(WebSocketFacade socket,  String...params){
+    public static String resign(WebSocketFacade socket){
         //confirms user wants to resign, if yes they lose and game is over
         socket.resign(Repl.auth.authToken(), Repl.gameID);
         return "resigned";
@@ -60,11 +61,10 @@ public class InGame {
     public static String highlightLegalMoves(String...params){
         //allows user to input what piece they want to know moves for
         //current piece's square and possible squares are highlighted
-        if(params.length > 1){
-            String piece = params[0];
-        }
+//        if(params.length > 1){
+//            String  = params[0];
+//        }
 
-        //don't notify other users in the game, for local user only
         return "highlighted moves";
     }
 

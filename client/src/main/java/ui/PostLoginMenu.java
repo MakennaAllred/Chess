@@ -62,7 +62,7 @@ public static String port;
 //                    GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK);
                     Repl.state = State.INGAME;
                     System.out.println("Joined game");
-                    System.out.print(Repl.help());
+                    Repl.help();
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
@@ -84,7 +84,7 @@ public static String port;
                 GameData gameBody = new GameData(0,null,null,gameName,null);
                 try{
                     CreateGameRes game = new ServerFacade(PostLoginMenu.port).createGame(Repl.auth.authToken(),gameBody);
-                    System.out.print("Game" + game.gameID() + "created");
+                    System.out.print("Game " + game.gameID() + " created");
                     return game.gameID();
                 }catch (Exception e){
                     System.out.print(e.getMessage());
@@ -121,7 +121,7 @@ public static String port;
             new ServerFacade(PostLoginMenu.port).logout(Repl.auth.authToken());
             Repl.state = State.SIGNEDOUT;
             System.out.println("Logged out successfully");
-            System.out.print(Repl.help());
+            Repl.help();
         }catch(Exception e){
             System.out.println(e.getMessage());
         }
@@ -132,7 +132,7 @@ public static String port;
             new ServerFacade(PostLoginMenu.port).deleteAll(Repl.auth.authToken());
             Repl.state = State.SIGNEDOUT;
             System.out.println("Everything cleared");
-            System.out.print(Repl.help());
+            Repl.help();
         }catch(Exception e){
             System.out.println(e.getMessage());
         }

@@ -47,7 +47,6 @@ public class Repl implements NotificationHandler {
 
             }
             catch(Throwable e){
-                e.printStackTrace();
                 System.out.print(e.getMessage());
             }
         }
@@ -66,18 +65,31 @@ public class Repl implements NotificationHandler {
                     """;
             System.out.println(pre);
             return pre;
-        }
-        String post =
-                 """
-                - Create <gameName>
-                - Join <PlayerColor gameID>
-                - List
-                - Logout
-                - Clear
+        } else if (state == State.SIGNEDIN) {
+            String post =
+                    """
+                    - Create <gameName>
+                    - Join <PlayerColor gameID>
+                    - List
+                    - Logout
+                    - Clear
+                    - Quit
+                    """;
+            System.out.println(post);
+            return post;
+        }else {
+            String in =
+                """
+                - RedrawBoard
+                - Leave
+                - MakeMove
+                - Resign
+                - LegalMoves
                 - Quit
                 """;
-        System.out.println(post);
-        return post;
+            System.out.println(in);
+            return in;
+        }
 
     }
 
