@@ -18,7 +18,7 @@ public static String port;
                 case "login" -> login(params);
                 case "register" -> register(params);
                 case "quit" -> "quit";
-                default -> help();
+                default -> Repl.help();
             };
         } catch (Exception e) {
             return e.getMessage();

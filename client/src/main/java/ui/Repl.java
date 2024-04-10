@@ -28,7 +28,7 @@ public class Repl implements NotificationHandler {
     }
     public void run(){
         System.out.println("Welcome to Chess, login to start.");
-        System.out.print(help());
+        help();
 
         Scanner scanner = new Scanner(System.in);
         Object res = "";
@@ -58,13 +58,17 @@ public class Repl implements NotificationHandler {
 
     public static String help(){
         if(state == State.SIGNEDOUT){
-            return """
+            String pre =
+                    """
                     - Register <username password email>
                     - Login <username password>
                     - Quit
                     """;
+            System.out.println(pre);
+            return pre;
         }
-        return """
+        String post =
+                 """
                 - Create <gameName>
                 - Join <PlayerColor gameID>
                 - List
@@ -72,6 +76,9 @@ public class Repl implements NotificationHandler {
                 - Clear
                 - Quit
                 """;
+        System.out.println(post);
+        return post;
+
     }
 
     @Override
