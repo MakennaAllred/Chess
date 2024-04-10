@@ -264,12 +264,27 @@ public class WebSocketHandler {
 
     }
 
+    private boolean validateMove(GameData gameInfo, AuthData userInfo, MakeMove moveCommand) throws IOException {
+        if(!Objects.equals(userInfo.username(), gameInfo.blackUsername()) && !Objects.equals(userInfo.username(), gameInfo.whiteUsername())){
+            return false;
+        }
+        if(gameInfo.game().getTeamTurn() != (userInfo.username().equals(gameInfo.blackUsername()) ? ChessGame.TeamColor.BLACK: ChessGame.TeamColor.WHITE)){
+            return false;
+        }
+        ChessPosition start = moveCommand.move.getStartPosition();
+        Collection<ChessMove> validMoves = gameInfo.game().validMoves(start);
+        for (ChessMove move : validMoves) {
+            if (move.equals(moveCommand.move)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
     private void makeMove(String msg, Session session) throws IOException {
         try {
             MakeMove moveCommand = new Gson().fromJson(msg, MakeMove.class);
-            boolean isValid = false;
             AuthData userInfo = auths.getAuth(moveCommand.getAuthString());
             GameData gameInfo = games.getGame(moveCommand.gameID);
             if(gameInfo.game().isGameOver){
@@ -278,76 +293,30 @@ public class WebSocketHandler {
                 c.clientNotify(userInfo.authToken(), notification);
                 return;
             }
-            String black = gameInfo.blackUsername();
-            String white = gameInfo.whiteUsername();
-            if (Objects.equals(userInfo.username(), black)) {
-                if (gameInfo.game().getTeamTurn() != ChessGame.TeamColor.BLACK) {
-                    Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Not your turn, cannot make move");
-                    ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
-                    c.clientNotify(moveCommand.getAuthString(), notification);
-                }else{
-                    ChessPosition start = moveCommand.move.getStartPosition();
-                    Collection<ChessMove> validMoves = gameInfo.game().validMoves(start);
-                    for (ChessMove move : validMoves) {
-                        if (move.equals(moveCommand.move)) {
-                            isValid = true;
-                            break;
-                        }
-                    }
-                    if (isValid) {
-                        gameInfo.game().makeMove(moveCommand.move);
-                        games.updateGame(gameInfo.game(), gameInfo.gameID());
-                        String message = String.format("%s made a move", userInfo.username());
-                        Notification noti = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                        LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
-                        ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
-                        c.broadcast("", notification);
-                        c.broadcast(userInfo.authToken(), noti);
-                    } else {
-                        Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Not a valid move");
-                        ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
-                        c.clientNotify(moveCommand.getAuthString(), notification);
-                    }
+            if(!validateMove(gameInfo,userInfo,moveCommand)) {
+                String errorMsg;
+                if(!Objects.equals(userInfo.username(), gameInfo.blackUsername()) && !Objects.equals(userInfo.username(), gameInfo.whiteUsername())){
+                    errorMsg = "Cannot make move as an observer";
                 }
-            }
-            else if(Objects.equals(userInfo.username(), white)){
-                if(gameInfo.game().getTeamTurn() != ChessGame.TeamColor.WHITE){
-                    Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Not your turn, cannot make move");
-                    ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
-                    c.clientNotify(moveCommand.getAuthString(), notification);
-                }else{
-                    ChessPosition start = moveCommand.move.getStartPosition();
-                    Collection<ChessMove> validMoves = gameInfo.game().validMoves(start);
-                    for (ChessMove move : validMoves) {
-                        if (move.equals(moveCommand.move)) {
-                            isValid = true;
-                            break;
-                        }
-                    }
-                    if (isValid) {
-                        gameInfo.game().makeMove(moveCommand.move);
-                        games.updateGame(gameInfo.game(), gameInfo.gameID());
-                        String message = String.format("%s made a move", userInfo.username());
-                        Notification noti = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                        LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
-                        ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
-                        c.broadcast(userInfo.authToken(), notification);
-                        c.clientNotify(userInfo.authToken(), notification);
-                        c.broadcast(userInfo.authToken(), noti);
-                    } else {
-                        ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
-                        Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Not a valid move");
-                        c.clientNotify(moveCommand.getAuthString(), notification);
-                    }
+                else{
+                    errorMsg = "Not your turn, cannot make move";
                 }
-
-            }else{
-                Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Cannot make moves as an observer");
+                Error notification = new Error(ServerMessage.ServerMessageType.ERROR, errorMsg);
                 ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
                 c.clientNotify(moveCommand.getAuthString(), notification);
+            }else{
+                gameInfo.game().makeMove(moveCommand.move);
+                games.updateGame(gameInfo.game(), gameInfo.gameID());
+                String message = String.format("%s made a move", userInfo.username());
+                Notification noti = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, gameInfo);
+                ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
+                c.broadcast(userInfo.authToken(), notification);
+                c.clientNotify(userInfo.authToken(), notification);
+                c.broadcast(userInfo.authToken(), noti);
             }
-        }
 
+        }
         catch (UnauthorizedException | IOException | BadRequestException | InvalidMoveException |
                  DataAccessException e) {
             System.out.println(e.getMessage());
