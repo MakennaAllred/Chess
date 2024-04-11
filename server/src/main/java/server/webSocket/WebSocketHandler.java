@@ -246,6 +246,12 @@ public class WebSocketHandler {
                 return;
             }
             List<String> clientsInGame = gamesAndUsers.get(gameInfo.gameID());
+            if(!clientsInGameCheck(clientsInGame)){
+                Error notification = new Error(ServerMessage.ServerMessageType.ERROR, "Can't resign, leave instead");
+                ConnectionsManager c = gameOrganizer.get(gameInfo.gameID());
+                c.clientNotify(userInfo.authToken(), notification);
+                return;
+            }
             Iterator<String> iterator = clientsInGame.iterator();
             while (iterator.hasNext()) {
                 String auth = iterator.next();

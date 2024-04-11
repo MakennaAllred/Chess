@@ -6,11 +6,14 @@ import ui.webSocket.WebSocketFacade;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
+
+import static ui.Repl.game;
 
 public class InGame {
     public static InGameStates state;
     public static String port;
-    public static GameData game;
+
 
     public static String eval(String port, String input, WebSocketFacade socket) {
         InGame.port = port;
@@ -34,7 +37,11 @@ public class InGame {
 
 
     public static String redrawBoard(){
-        GenerateBoard.generateBoard(game.game().getTeamTurn(), game.game().getBoard(),null, null);
+        if(Objects.equals(Repl.username, Repl.game.whiteUsername())) {
+            GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE, game.game().getBoard(), null, null);
+            return "board drawn";
+        }
+        GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK, game.game().getBoard(), null, null);
         return "board drawn";
     }
 
@@ -83,12 +90,18 @@ public class InGame {
         //allows user to input what piece they want to know moves for
         //current piece's square and possible squares are highlighted
         if(params.length > 0){
-            int col = params[0].toLowerCase().charAt(0) - 'a' + 1;
+            int col = 0;
+            if(Objects.equals(Repl.username, game.whiteUsername())) {
+                col = params[0].toLowerCase().charAt(0) - 'a' + 1;
+            }
+            else{
+                col = 'h' - params[0].toLowerCase().charAt(0)  + 1;
+            }
             int row = Integer.parseInt(params[0].substring(1));
             ChessPosition start = new ChessPosition(row, col);
             Collection<ChessMove> valids = game.game().validMoves(start);
             ChessBoard board = game.game().getBoard();
-            if (Repl.username == game.whiteUsername()) {
+            if (Objects.equals(Repl.username, game.whiteUsername())) {
                 GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE, board, valids, start);
             }else{
                 GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK, board, valids, start);

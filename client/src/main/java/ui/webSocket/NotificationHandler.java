@@ -4,5 +4,5 @@ import webSocketMessages.serverMessages.*;
 import webSocketMessages.userCommands.UserGameCommand;
 
 public interface NotificationHandler {
-    void notify(ServerMessage notification);
+    void notify(String notification);
 }

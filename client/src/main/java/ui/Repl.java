@@ -1,12 +1,19 @@
 package ui;
 
 import chess.ChessGame;
+import com.google.gson.Gson;
 import model.AuthData;
+import model.GameData;
+import org.eclipse.jetty.server.Server;
 import ui.webSocket.NotificationHandler;
 import ui.webSocket.WebSocketFacade;
+import webSocketMessages.serverMessages.Error;
+import webSocketMessages.serverMessages.LoadGame;
+import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.serverMessages.ServerMessage;
 
 import java.net.http.WebSocket;
+import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -19,6 +26,7 @@ public class Repl implements NotificationHandler {
     public static String serverURL;
     public static int gameID;
     public WebSocketFacade socket;
+    public static GameData game;
 
     public Repl(int port){
         String p = String.valueOf(port);
@@ -42,7 +50,6 @@ public class Repl implements NotificationHandler {
                     res = PostLoginMenu.eval(serverURL, line, socket);
                 }else{
                     res = InGame.eval(serverURL,line, socket);
-                    Repl.help();
                 }
 
             }
@@ -94,7 +101,28 @@ public class Repl implements NotificationHandler {
     }
 
     @Override
-    public void notify(ServerMessage notification) {
-        System.out.println("it worked!");
+    public void notify(String notification) {
+        ServerMessage msg = new Gson().fromJson(notification, ServerMessage.class);
+        switch(msg.getServerMessageType()){
+            case LOAD_GAME -> loadGame(notification);
+            case ERROR -> errorMessage(notification);
+            case NOTIFICATION -> notification(notification);
+        }
+    }
+    public void loadGame(String notification){
+        //save the game variable
+        LoadGame msg = new Gson().fromJson(notification, LoadGame.class);
+        game = msg.game;
+        InGame.redrawBoard();
+    }
+    public void errorMessage(String notification){
+        Error msg = new Gson().fromJson(notification, Error.class);
+        System.out.print("Error: " + msg.errorMessage);
+
+    }
+    public void notification(String notification){
+        Notification msg = new Gson().fromJson(notification, Notification.class);
+        System.out.println(msg.message);
     }
 }
+

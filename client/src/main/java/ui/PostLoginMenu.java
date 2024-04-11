@@ -42,37 +42,35 @@ public static String port;
                 int gameID = Integer.parseInt(params[1]);
                 Repl.gameID = gameID;
                 JoinGameReq body = new JoinGameReq(playerColor,gameID);
+                try {
+                    new ServerFacade(PostLoginMenu.port).joinGame(Repl.auth.authToken(), body);
+                    Repl.game = listOfGames.get(gameID);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
                 if(playerColor == null){
                     InGame.state = InGameStates.OBSERVER;
                     socket.joinObserverWS(Repl.auth.authToken(),gameID);
-                    InGame.game = listOfGames.get(gameID);
 
                 }
                 else {
                     InGame.state = InGameStates.PLAYER;
                     if (playerColor.equals("WHITE")) {
                         socket.joinPlayerWs(Repl.auth.authToken(), gameID, ChessGame.TeamColor.WHITE);
-                        InGame.game = listOfGames.get(gameID);
 
                     }
                     else{
                         socket.joinPlayerWs(Repl.auth.authToken(), gameID, ChessGame.TeamColor.BLACK);
-                        InGame.game = listOfGames.get(gameID);
 
                     }
                 }
+//                GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK, Repl.game.game().getBoard(), null, null);
+                System.out.println();
+//                GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE, Repl.game.game().getBoard(), null, null);
+                Repl.state = State.INGAME;
+                System.out.println("Joined game");
+                Repl.help();
 
-                try {
-                    new ServerFacade(PostLoginMenu.port).joinGame(Repl.auth.authToken(), body);
-                    GenerateBoard.generateBoard(ChessGame.TeamColor.BLACK, InGame.game.game().getBoard(), null, null);
-                    System.out.println();
-                    GenerateBoard.generateBoard(ChessGame.TeamColor.WHITE, InGame.game.game().getBoard(), null, null);
-                    Repl.state = State.INGAME;
-                    System.out.println("Joined game");
-                    Repl.help();
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
             }
             else{
                 System.out.print("Error: can't join game");
